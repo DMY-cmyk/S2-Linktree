@@ -66,7 +66,7 @@ export function HomePage() {
   return (
     <>
       <AnimatedBackground />
-      <div className="content-layer min-h-screen bg-[var(--bg-primary)]">
+      <div className="content-layer min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b-2 border-[var(--border-color)] px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
