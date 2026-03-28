@@ -87,6 +87,7 @@ src/
 │   │   ├── AddLinkModal.tsx    # Modal: URL, title, description, category select
 │   │   ├── EditLinkModal.tsx   # Modal: edit existing link fields
 │   │   ├── AddCategoryModal.tsx # Modal: name, emoji picker, color picker
+│   │   ├── EditCategoryModal.tsx # Modal: edit category name, emoji, color
 │   │   └── DeleteConfirm.tsx   # Confirmation dialog for destructive actions
 │   └── search/
 │       └── SearchBar.tsx       # Global search input with real-time filtering
@@ -96,7 +97,8 @@ src/
 │       ├── Button.tsx          # Neo-Brutalism button (bold border, shadow)
 │       ├── Input.tsx           # Styled input with thick borders
 │       ├── ThemeToggle.tsx     # Dark/light mode switch
-│       └── EmojiPicker.tsx     # Grid-based emoji selector
+│       ├── EmojiPicker.tsx     # Grid-based emoji selector
+│       └── Toast.tsx           # Notification toast for warnings/errors
 ├── store/
 │   └── useLinkStore.ts        # Zustand store: categories[], links[], CRUD actions
 ├── hooks/
@@ -121,7 +123,7 @@ src/
 - **Backgrounds:** Light mode: warm cream `#fffbe6`, Dark mode: deep blue-grey `#1a1a2e`
 
 ### Theme System
-CSS custom properties toggled via a `data-theme` attribute on `<html>`:
+CSS custom properties toggled via a `data-theme` attribute on `<html>`. **Theme persistence:** stored in `localStorage` under key `s2-linktree-theme` and applied on mount via a `useEffect` in the root layout to avoid flash of wrong theme.
 
 ```
 --bg-primary: light #fffbe6 / dark #1a1a2e
@@ -168,7 +170,7 @@ All text in light mode uses solid dark colors (`#222` or `#333`) — no transpar
 - Debounced at 150ms for performance
 
 ### Add Link Modal
-Fields: URL (required), Title (required, auto-populated from URL if possible), Description (optional), Category (required dropdown). Validation: valid URL format, non-empty title.
+Fields: URL (required), Title (required, auto-suggested by extracting a readable name from the domain — e.g. `portal.etc.web.id` → "Portal ETC"), Description (optional), Category (required dropdown). Validation: valid URL format, non-empty title.
 
 ### Edit Link Modal
 Same fields as Add, pre-populated. Shows in which category the link currently lives. Allows moving to different category.
@@ -176,8 +178,11 @@ Same fields as Add, pre-populated. Shows in which category the link currently li
 ### Add Category Modal
 Fields: Name (required), Emoji (picker grid), Color (preset palette selector). Validates: non-empty name.
 
+### Edit Category Modal
+Same fields as Add Category (name, emoji, color), pre-populated with current values. Triggered by clicking an edit icon on the category card header. Validates non-empty name.
+
 ### Delete Confirmation
-Animated modal: "Are you sure you want to delete [name]?" with Cancel and Delete buttons. Delete button uses red accent.
+Animated modal: "Are you sure you want to delete [name]?" with Cancel and Delete buttons. Delete button uses red accent. **Category deletion cascades:** deleting a category also deletes all links within it. The confirmation dialog explicitly warns: "This will also delete N links in this category."
 
 ## Animations (Framer Motion)
 
@@ -224,14 +229,43 @@ const staggerContainer = {
 | No categories exist | Full-page empty state: "Create your first category" with CTA |
 | Search returns nothing | "No links match your search" + clear button |
 | External links | All open in new tab with `rel="noopener noreferrer"` |
+| Category deleted | Cascade-deletes all links in category, with explicit warning in confirmation dialog |
+
+### Toast Notifications
+A custom lightweight Toast component (no external library) rendered via a portal at the top-right of the viewport. Auto-dismisses after 4 seconds. Supports `success`, `warning`, and `error` variants with Neo-Brutalism styling (thick border, hard shadow). **Triggering mechanism:** A small standalone Zustand toast store (`useToastStore`) with `addToast(message, variant)` action — callable from any store action or component.
 
 ## Data Export/Import
 
 A settings gear icon in the header expands to show:
 - **Export:** Downloads all data as a JSON file (`s2-linktree-backup.json`)
-- **Import:** File upload that merges or replaces data, with confirmation
+- **Import:** File upload with two modes, selected via radio buttons:
+  - **Replace:** Overwrites all existing data with the imported file (with confirmation: "This will replace all current data")
+  - **Merge:** Appends new items only. Matching is by `id` — items with the same `id` are skipped (existing data is kept). Items with new `id`s are added. A summary toast shows "Added N links, M categories. Skipped K duplicates."
 
 This provides a safety net for localStorage-based storage.
+
+## Zustand Store Actions
+
+```typescript
+interface LinkStore {
+  categories: Category[];
+  links: Link[];
+
+  // Category actions
+  addCategory(category: Omit<Category, 'id' | 'createdAt'>): void;
+  updateCategory(id: string, updates: Partial<Pick<Category, 'name' | 'emoji' | 'color' | 'order'>>): void;
+  deleteCategory(id: string): void; // cascades: deletes all links in category
+
+  // Link actions
+  addLink(link: Omit<Link, 'id' | 'createdAt'>): void;
+  updateLink(id: string, updates: Partial<Pick<Link, 'title' | 'url' | 'description' | 'categoryId' | 'order'>>): void;
+  deleteLink(id: string): void;
+
+  // Bulk actions
+  exportData(): { categories: Category[]; links: Link[] };
+  importData(data: { categories: Category[]; links: Link[] }, mode: 'replace' | 'merge'): void;
+}
+```
 
 ## V1 Scope
 
