@@ -133,4 +133,50 @@ describe('useLinkStore', () => {
       expect(useLinkStore.getState().categories[0].order).toBe(0);
     });
   });
+
+  describe('reorderLinks', () => {
+    it('reorders links within a category', () => {
+      useLinkStore.setState({
+        categories: [{ id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 }],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c1', title: 'L3', url: 'https://3.com', order: 2, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l3');
+      const links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c1')
+        .sort((a, b) => a.order - b.order);
+      expect(links.map((l) => l.id)).toEqual(['l2', 'l3', 'l1']);
+      expect(links[0].order).toBe(0);
+      expect(links[1].order).toBe(1);
+      expect(links[2].order).toBe(2);
+    });
+
+    it('does not affect links in other categories', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c2', title: 'L3', url: 'https://3.com', order: 0, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l2');
+      const c2Links = useLinkStore.getState().links.filter((l) => l.categoryId === 'c2');
+      expect(c2Links[0].order).toBe(0);
+    });
+
+    it('does nothing when activeId equals overId', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l1');
+      expect(useLinkStore.getState().links[0].order).toBe(0);
+    });
+  });
 });

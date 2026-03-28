@@ -14,6 +14,7 @@ interface LinkStore {
   updateLink: (id: string, updates: Partial<Pick<Link, 'title' | 'url' | 'description' | 'categoryId' | 'order'>>) => void;
   deleteLink: (id: string) => void;
   reorderCategories: (activeId: string, overId: string) => void;
+  reorderLinks: (categoryId: string, activeId: string, overId: string) => void;
 }
 
 export const useLinkStore = create<LinkStore>()(
@@ -63,6 +64,25 @@ export const useLinkStore = create<LinkStore>()(
           reordered.splice(newIndex, 0, moved);
           return {
             categories: reordered.map((c, i) => ({ ...c, order: i })),
+          };
+        });
+      },
+
+      reorderLinks: (categoryId, activeId, overId) => {
+        if (activeId === overId) return;
+        set((state) => {
+          const catLinks = state.links
+            .filter((l) => l.categoryId === categoryId)
+            .sort((a, b) => a.order - b.order);
+          const otherLinks = state.links.filter((l) => l.categoryId !== categoryId);
+          const oldIndex = catLinks.findIndex((l) => l.id === activeId);
+          const newIndex = catLinks.findIndex((l) => l.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return state;
+          const reordered = [...catLinks];
+          const [moved] = reordered.splice(oldIndex, 1);
+          reordered.splice(newIndex, 0, moved);
+          return {
+            links: [...otherLinks, ...reordered.map((l, i) => ({ ...l, order: i }))],
           };
         });
       },
