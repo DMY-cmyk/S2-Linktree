@@ -33,7 +33,6 @@ Three changes to the deployed S2-Linktree application:
 - `handleImport` function
 - `isValidImport` validation function
 - `settingsOpen` state and `settingsRef` ref
-- `settingsMenuRef` for click-outside detection
 - The `useEffect` for click-outside-close on settings dropdown
 - The entire settings `<button>` (⚙️) and its dropdown menu DOM
 - Zustand selector references: `exportData`, `importData`
@@ -75,7 +74,7 @@ features/background-effects/
 └── useMouseParallax.ts      — Hook: tracks mouse position, returns normalized coords
 ```
 
-**Integration point:** `AnimatedBackground` is rendered in `HomePage.tsx` (or `layout.tsx`) as a fixed full-screen layer behind all content. Loaded via `next/dynamic` with `{ ssr: false }`.
+**Integration point:** `AnimatedBackground` is rendered in `HomePage.tsx` as a fixed full-screen layer behind all content. `HomePage.tsx` is already a `'use client'` component, making it the correct host for the `next/dynamic` SSR-false import. It must NOT be placed in `layout.tsx` (which is a Server Component).
 
 ### 3D Scene Design
 
@@ -129,7 +128,7 @@ A `MutationObserver` on `document.documentElement` watches for `data-theme` chan
 - Returns `{ x, y }` normalized to `[-1, 1]`
 - Applied as camera offset: `camera.position.x = baseX + mouse.x * 0.3`
 - Smoothed with linear interpolation (`lerp`) in `useFrame` for fluid motion
-- **Mobile fallback:** Uses `DeviceOrientationEvent` if available for tilt-based parallax. If not available, no parallax (autonomous float only).
+- **Mobile fallback:** No tilt-based parallax on mobile (DeviceOrientationEvent requires explicit permission on iOS 13+ and is unreliable). Mobile uses autonomous float only — no parallax.
 
 ### Performance Safeguards
 
@@ -185,7 +184,7 @@ components/ui/
 - **Trigger:** Same as Level 2 — dragging a link out of its card boundary
 - **Detection:** `onDragOver` checks if the link is hovering over a different category container
 - **Visual feedback:** Target category card shows a glowing border highlight (using its accent color) when a link is dragged over it
-- **Drop:** `updateLink(id, { categoryId: newCategoryId, order: insertIndex })` moves the link
+- **Drop:** `moveLinkToCategory(linkId, targetCategoryId, insertIndex)` moves the link, recalculates order in both source and target categories
 - **Overlay:** `DragOverlay` renders a ghost of the link item following the cursor, ensuring smooth visual during cross-container moves
 
 ### Sensors
@@ -202,25 +201,56 @@ const sensors = useSensors(
 - **Touch:** 250ms press-hold delay to avoid conflicting with scroll
 - **Keyboard:** Arrow keys for accessible reordering
 
+### Framer Motion + @dnd-kit Reconciliation
+
+The existing codebase uses Framer Motion features that will conflict with @dnd-kit's transform-based positioning. These must be explicitly handled:
+
+**Problem 1: `layout` prop on `LinkItem`**
+- Framer Motion's `layout` animates position changes with its own transform, conflicting with @dnd-kit's `transform: translate3d(...)`.
+- **Fix:** Remove the `layout` prop from `LinkItem`. @dnd-kit's `SortableContext` with `transition` config handles smooth reorder animations natively.
+
+**Problem 2: `whileHover` on `CategoryCard` and `LinkItem`**
+- During drag, hovering over items triggers hover animations, causing visual jitter.
+- **Fix:** Pass an `isDragging` boolean (from `useCategoryDnd` hook via context or props) to `CategoryCard` and `LinkItem`. When `isDragging` is true, disable `whileHover` by setting it to `undefined`.
+
+**Problem 3: `AnimatePresence mode="popLayout"` in `CategoryGrid`**
+- Zustand state changes from reordering trigger AnimatePresence to interpret items as exiting/entering, causing stagger animations on every drop.
+- **Fix:** Replace `AnimatePresence mode="popLayout"` with a simpler render approach. Use `layoutId` on sortable items for smooth transitions, and rely on @dnd-kit's built-in `transition` for reorder animations. AnimatePresence stays only for actual add/remove operations (not reorder).
+
+**Implementation pattern:**
+```typescript
+// In SortableCategoryCard / SortableLinkItem wrapper:
+const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+const style = { transform: CSS.Transform.toString(transform), transition };
+
+// Pass isDragging to inner component to disable conflicting Framer Motion props
+<CategoryCard {...props} isDragging={isDragging} dragHandleProps={{ ...attributes, ...listeners }} ref={setNodeRef} style={style} />
+```
+
 ### Store Additions
 
 ```typescript
 // New actions added to useLinkStore
 reorderCategories: (activeId: string, overId: string) => void;
 reorderLinks: (categoryId: string, activeId: string, overId: string) => void;
+moveLinkToCategory: (linkId: string, targetCategoryId: string, insertIndex: number) => void;
 ```
 
 **`reorderCategories` logic:**
-1. Find the active and over categories
-2. Get their current `order` values
-3. If moving forward: decrement order of items in between, set active to over's order
-4. If moving backward: increment order of items in between, set active to over's order
-5. Uses array index swap with `arrayMove` from `@dnd-kit/sortable`, then assigns new sequential `order` values
+1. Get sorted categories array
+2. Find indices of `activeId` and `overId`
+3. Apply `arrayMove` to swap positions
+4. Reassign sequential `order` values (0, 1, 2, ...) to the reordered array
 
 **`reorderLinks` logic:**
-1. Filter links by `categoryId`
+1. Filter links by `categoryId`, sorted by `order`
 2. Apply `arrayMove` on the filtered set
 3. Reassign sequential `order` values to the reordered links
+
+**`moveLinkToCategory` logic:**
+1. Update the moved link's `categoryId` to `targetCategoryId`
+2. Remove the link from the source category's ordered list and reassign sequential `order` values to close the gap
+3. Insert the link at `insertIndex` in the target category's ordered list and reassign sequential `order` values to make room
 
 ### Drag Animations
 
@@ -322,8 +352,8 @@ All lazy-loaded where applicable to minimize initial bundle impact.
 | File | Changes |
 |------|---------|
 | `src/features/home/HomePage.tsx` | Remove import/export/settings, integrate background + DnD |
-| `src/store/useLinkStore.ts` | Remove export/import, add reorderCategories + reorderLinks |
-| `src/store/useLinkStore.test.ts` | Remove export/import tests, add reorder tests |
+| `src/store/useLinkStore.ts` | Remove export/import, add reorderCategories + reorderLinks + moveLinkToCategory |
+| `src/store/useLinkStore.test.ts` | Remove export/import tests, add reorder + move tests |
 | `src/features/link-directory/CategoryCard.tsx` | Add drag handle, accept sortable props |
 | `src/features/link-directory/CategoryGrid.tsx` | Delegate rendering to SortableCategoryGrid |
 | `src/features/link-directory/LinkItem.tsx` | Add drag handle, accept sortable props |
