@@ -13,6 +13,7 @@ interface LinkStore {
   addLink: (input: Omit<Link, 'id' | 'createdAt'>) => void;
   updateLink: (id: string, updates: Partial<Pick<Link, 'title' | 'url' | 'description' | 'categoryId' | 'order'>>) => void;
   deleteLink: (id: string) => void;
+  reorderCategories: (activeId: string, overId: string) => void;
 }
 
 export const useLinkStore = create<LinkStore>()(
@@ -49,6 +50,22 @@ export const useLinkStore = create<LinkStore>()(
 
       deleteLink: (id) =>
         set((state) => ({ links: state.links.filter((l) => l.id !== id) })),
+
+      reorderCategories: (activeId, overId) => {
+        if (activeId === overId) return;
+        set((state) => {
+          const sorted = [...state.categories].sort((a, b) => a.order - b.order);
+          const oldIndex = sorted.findIndex((c) => c.id === activeId);
+          const newIndex = sorted.findIndex((c) => c.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return state;
+          const reordered = [...sorted];
+          const [moved] = reordered.splice(oldIndex, 1);
+          reordered.splice(newIndex, 0, moved);
+          return {
+            categories: reordered.map((c, i) => ({ ...c, order: i })),
+          };
+        });
+      },
     }),
     {
       name: 's2-linktree-store',

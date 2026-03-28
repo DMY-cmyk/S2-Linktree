@@ -84,4 +84,53 @@ describe('useLinkStore', () => {
       expect(useLinkStore.getState().links[0].title).toBe('B');
     });
   });
+
+  describe('reorderCategories', () => {
+    it('swaps two categories and reassigns sequential order values', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c1', 'c3');
+      const cats = useLinkStore.getState().categories;
+      const sorted = [...cats].sort((a, b) => a.order - b.order);
+      expect(sorted.map((c) => c.id)).toEqual(['c2', 'c3', 'c1']);
+      expect(sorted[0].order).toBe(0);
+      expect(sorted[1].order).toBe(1);
+      expect(sorted[2].order).toBe(2);
+    });
+
+    it('handles moving a category backward', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c3', 'c1');
+      const cats = useLinkStore.getState().categories;
+      const sorted = [...cats].sort((a, b) => a.order - b.order);
+      expect(sorted.map((c) => c.id)).toEqual(['c3', 'c1', 'c2']);
+      expect(sorted[0].order).toBe(0);
+      expect(sorted[1].order).toBe(1);
+      expect(sorted[2].order).toBe(2);
+    });
+
+    it('does nothing when activeId equals overId', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c1', 'c1');
+      expect(useLinkStore.getState().categories[0].order).toBe(0);
+    });
+  });
 });
