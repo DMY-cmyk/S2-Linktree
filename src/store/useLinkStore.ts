@@ -13,16 +13,11 @@ interface LinkStore {
   addLink: (input: Omit<Link, 'id' | 'createdAt'>) => void;
   updateLink: (id: string, updates: Partial<Pick<Link, 'title' | 'url' | 'description' | 'categoryId' | 'order'>>) => void;
   deleteLink: (id: string) => void;
-  exportData: () => { categories: Category[]; links: Link[] };
-  importData: (
-    data: { categories: Category[]; links: Link[] },
-    mode: 'replace' | 'merge'
-  ) => { addedCategories: number; addedLinks: number; skipped: number };
 }
 
 export const useLinkStore = create<LinkStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       categories: DEFAULT_CATEGORIES,
       links: DEFAULT_LINKS,
 
@@ -54,26 +49,6 @@ export const useLinkStore = create<LinkStore>()(
 
       deleteLink: (id) =>
         set((state) => ({ links: state.links.filter((l) => l.id !== id) })),
-
-      exportData: () => {
-        const { categories, links } = get();
-        return { categories, links };
-      },
-
-      importData: (data, mode) => {
-        if (mode === 'replace') {
-          set({ categories: data.categories, links: data.links });
-          return { addedCategories: data.categories.length, addedLinks: data.links.length, skipped: 0 };
-        }
-        const state = get();
-        const existingCatIds = new Set(state.categories.map((c) => c.id));
-        const existingLinkIds = new Set(state.links.map((l) => l.id));
-        const newCats = data.categories.filter((c) => !existingCatIds.has(c.id));
-        const newLinks = data.links.filter((l) => !existingLinkIds.has(l.id));
-        const skipped = data.categories.length - newCats.length + data.links.length - newLinks.length;
-        set({ categories: [...state.categories, ...newCats], links: [...state.links, ...newLinks] });
-        return { addedCategories: newCats.length, addedLinks: newLinks.length, skipped };
-      },
     }),
     {
       name: 's2-linktree-store',
