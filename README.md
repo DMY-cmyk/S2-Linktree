@@ -23,7 +23,7 @@
 
 ### V2 — 3D Background & Drag-and-Drop
 
-- **WebGL 3D Animated Background** — Six floating color blobs rendered with React Three Fiber, Bloom post-processing, and mouse-driven camera parallax. Theme-adaptive (brighter in dark mode, subtler in light). Automatically disabled for users who prefer reduced motion.
+- **WebGL 3D Animated Background** — Six organic, distorted 3D blobs rendered with React Three Fiber and drei's `MeshDistortMaterial` for GPU-accelerated vertex displacement. Features a 3-light rig (ambient + key + rim) for visible surface curvature, slow 3D rotation, Bloom post-processing, and mouse-driven camera parallax. Theme-adaptive lighting (brighter in dark mode, subtler in light). Automatically disabled for users who prefer reduced motion.
 - **Drag-and-Drop Reordering** — Powered by @dnd-kit:
   - **Category reorder** — Drag categories by their handle to rearrange the grid
   - **Link reorder** — Drag links within a category to reorder them
@@ -43,7 +43,7 @@
 |-------|-----------|
 | Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
 | UI | [React 19](https://react.dev/) + [Tailwind CSS v4](https://tailwindcss.com/) |
-| 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/postprocessing](https://github.com/pmndrs/react-postprocessing) |
+| 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/drei](https://github.com/pmndrs/drei) + [@react-three/postprocessing](https://github.com/pmndrs/react-postprocessing) |
 | Drag & Drop | [@dnd-kit](https://dndkit.com/) (core, sortable, utilities) |
 | State | [Zustand 5](https://zustand.docs.pmnd.rs/) with `persist` middleware |
 | Animations | [Framer Motion 12](https://motion.dev/) |
@@ -110,7 +110,7 @@ src/
 │   ├── background-effects/     # WebGL 3D animated background
 │   │   ├── AnimatedBackground.tsx   # Canvas wrapper with Suspense + reduced-motion fallback
 │   │   ├── BlobScene.tsx            # 6 blobs, Bloom, camera parallax, theme detection
-│   │   ├── FloatingBlob.tsx         # Animated sphere with sine-based floating motion
+│   │   ├── FloatingBlob.tsx         # Organic 3D blob with MeshDistortMaterial + rotation
 │   │   └── useMouseParallax.ts      # Normalized mouse coordinate hook
 │   └── card-ordering/          # Drag-and-drop reordering system
 │       ├── SortableCategoryGrid.tsx  # DndContext wrapper + DragOverlay
@@ -134,7 +134,7 @@ The app uses a **Neo-Brutalism** aesthetic:
 - **Dark & light themes** via CSS custom properties on `[data-theme]`
 - **Stagger animations** on category cards and links
 - **Drag feedback** — Cards lift with scale + shadow on grab, settle smoothly on drop
-- **3D background** — Floating color blobs with Bloom glow, adapting to current theme
+- **3D background** — Organic distorted blobs with 3-light rig, specular highlights, rim lighting, and Bloom glow, adapting to current theme
 
 ## 📝 License
 
