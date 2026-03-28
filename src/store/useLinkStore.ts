@@ -15,6 +15,7 @@ interface LinkStore {
   deleteLink: (id: string) => void;
   reorderCategories: (activeId: string, overId: string) => void;
   reorderLinks: (categoryId: string, activeId: string, overId: string) => void;
+  moveLinkToCategory: (linkId: string, targetCategoryId: string, insertIndex: number) => void;
 }
 
 export const useLinkStore = create<LinkStore>()(
@@ -84,6 +85,33 @@ export const useLinkStore = create<LinkStore>()(
           return {
             links: [...otherLinks, ...reordered.map((l, i) => ({ ...l, order: i }))],
           };
+        });
+      },
+
+      moveLinkToCategory: (linkId, targetCategoryId, insertIndex) => {
+        set((state) => {
+          const link = state.links.find((l) => l.id === linkId);
+          if (!link) return state;
+          const sourceCategoryId = link.categoryId;
+          if (sourceCategoryId === targetCategoryId) return state;
+
+          const sourceLinks = state.links
+            .filter((l) => l.categoryId === sourceCategoryId && l.id !== linkId)
+            .sort((a, b) => a.order - b.order)
+            .map((l, i) => ({ ...l, order: i }));
+
+          const targetLinks = state.links
+            .filter((l) => l.categoryId === targetCategoryId)
+            .sort((a, b) => a.order - b.order);
+          const clampedIndex = Math.min(insertIndex, targetLinks.length);
+          const movedLink = { ...link, categoryId: targetCategoryId };
+          targetLinks.splice(clampedIndex, 0, movedLink);
+          const reorderedTarget = targetLinks.map((l, i) => ({ ...l, order: i }));
+
+          const otherLinks = state.links.filter(
+            (l) => l.categoryId !== sourceCategoryId && l.categoryId !== targetCategoryId
+          );
+          return { links: [...otherLinks, ...sourceLinks, ...reorderedTarget] };
         });
       },
     }),
