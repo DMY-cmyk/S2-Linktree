@@ -41,6 +41,7 @@ export function HomePage() {
   const deleteCategory = useLinkStore((s) => s.deleteCategory);
   const { addToast } = useToastStore();
   const links = useLinkStore((s) => s.links);
+  const categories = useLinkStore((s) => s.categories);
 
   const handleDelete = () => {
     if (!deletingItem) return;
@@ -92,6 +93,8 @@ export function HomePage() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
         <CategoryGrid
           results={filteredResults}
+          allLinks={links}
+          allCategories={categories}
           searchQuery={searchQuery}
           onClearSearch={() => setSearchQuery('')}
           onEditLink={setEditingLink}

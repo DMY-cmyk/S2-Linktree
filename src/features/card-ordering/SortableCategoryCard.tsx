@@ -32,5 +32,5 @@ export function SortableCategoryCard({ category, children }: SortableCategoryCar
     zIndex: isDragging ? 50 : 'auto',
   };
 
-  return <>{children({ setNodeRef, style, isDragging, listeners, attributes })}</>;
+  return <>{children({ setNodeRef, style, isDragging, listeners, attributes: attributes as unknown as Record<string, unknown> })}</>;
 }
