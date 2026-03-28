@@ -16,6 +16,12 @@ import { useFilteredLinks } from '@/hooks/useFilteredLinks';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
 import type { Link, Category } from '@/types';
+import dynamic from 'next/dynamic';
+
+const AnimatedBackground = dynamic(
+  () => import('@/features/background-effects/AnimatedBackground').then((mod) => ({ default: mod.AnimatedBackground })),
+  { ssr: false }
+);
 
 export function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +63,9 @@ export function HomePage() {
     links.filter((l) => l.categoryId === categoryId).length;
 
   return (
-    <div className="content-layer min-h-screen bg-[var(--bg-primary)]">
+    <>
+      <AnimatedBackground />
+      <div className="content-layer min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b-2 border-[var(--border-color)] px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
@@ -143,5 +151,6 @@ export function HomePage() {
 
       <ToastContainer />
     </div>
+    </>
   );
 }
