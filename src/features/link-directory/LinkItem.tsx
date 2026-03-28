@@ -8,16 +8,16 @@ interface LinkItemProps {
   accentColor: string;
   onEdit: () => void;
   onDelete: () => void;
+  isDragging?: boolean;
 }
 
-export function LinkItem({ link, accentColor, onEdit, onDelete }: LinkItemProps) {
+export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = false }: LinkItemProps) {
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.8 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={isDragging ? undefined : { scale: 1.02 }}
       className="group relative flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-colors"
       style={{
         borderColor: `${accentColor}40`,
