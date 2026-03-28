@@ -1,0 +1,105 @@
+<h2>Which layout style for the main hub?</h2>
+<p class="subtitle">Click to select your preferred layout approach</p>
+
+<div class="cards">
+  <!-- Option A: Classic Linktree -->
+  <div class="card" data-choice="classic-centered" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: linear-gradient(135deg, #0f0f23, #1a1a3e);">
+      <div style="max-width: 280px; margin: 0 auto; text-align: center;">
+        <!-- Avatar -->
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); margin: 0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:24px;">🎓</div>
+        <div style="color: #fff; font-weight: 700; font-size: 14px;">S2 Linktree</div>
+        <div style="color: #94a3b8; font-size: 11px; margin-bottom: 14px;">Master's Degree Hub</div>
+        <!-- Category -->
+        <div style="color: #a78bfa; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">📝 TPA</div>
+        <div style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px; margin-bottom: 6px; color: #c7d2fe; font-size: 11px;">Portal ETC →</div>
+        <div style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px; margin-bottom: 10px; color: #c7d2fe; font-size: 11px;">Jadwal TPA →</div>
+        <!-- Category 2 -->
+        <div style="color: #34d399; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">🌐 TOEFL</div>
+        <div style="background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 10px; margin-bottom: 6px; color: #a7f3d0; font-size: 11px;">ILP Cikini Schedule →</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Classic Centered</h3>
+      <p>Traditional Linktree feel — single centered column, categories as labeled sections, links as full-width buttons. Clean, focused, mobile-first. Scrolls vertically through all categories.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Card Grid -->
+  <div class="card" data-choice="card-grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: linear-gradient(135deg, #0f0f23, #1a1a3e);">
+      <div style="max-width: 320px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="text-align:center; margin-bottom: 14px;">
+          <div style="color: #fff; font-weight: 700; font-size: 14px;">🎓 S2 Linktree</div>
+          <div style="color: #94a3b8; font-size: 11px;">Master's Degree Hub</div>
+        </div>
+        <!-- Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); border-radius: 12px; padding: 12px;">
+            <div style="font-size: 20px; margin-bottom: 4px;">📝</div>
+            <div style="color: #c7d2fe; font-weight: 600; font-size: 11px;">TPA</div>
+            <div style="color: #64748b; font-size: 10px;">2 links</div>
+          </div>
+          <div style="background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.25); border-radius: 12px; padding: 12px;">
+            <div style="font-size: 20px; margin-bottom: 4px;">🌐</div>
+            <div style="color: #a7f3d0; font-weight: 600; font-size: 11px;">TOEFL</div>
+            <div style="color: #64748b; font-size: 10px;">2 links</div>
+          </div>
+          <div style="background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.25); border-radius: 12px; padding: 12px; grid-column: span 2;">
+            <div style="font-size: 20px; margin-bottom: 4px;">📚</div>
+            <div style="color: #fde68a; font-weight: 600; font-size: 11px;">Study Materials</div>
+            <div style="color: #64748b; font-size: 10px;">1 link</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Category Card Grid</h3>
+      <p>Categories displayed as clickable cards in a responsive grid. Click a category to expand and see its links. More visual, better overview when you have many categories. Great for scanning.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Hybrid -->
+  <div class="card" data-choice="hybrid-accordion" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: linear-gradient(135deg, #0f0f23, #1a1a3e);">
+      <div style="max-width: 300px; margin: 0 auto; text-align: center;">
+        <!-- Avatar -->
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); margin: 0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:20px;">🎓</div>
+        <div style="color: #fff; font-weight: 700; font-size: 13px;">S2 Linktree</div>
+        <div style="color: #94a3b8; font-size: 10px; margin-bottom: 12px;">Master's Degree Hub</div>
+        <!-- Accordion categories -->
+        <div style="text-align: left;">
+          <!-- Expanded -->
+          <div style="background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px; margin-bottom: 6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: #c7d2fe; font-weight: 600; font-size: 11px;">📝 TPA</span>
+              <span style="color: #6366f1; font-size: 10px;">▼</span>
+            </div>
+            <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid rgba(99,102,241,0.3);">
+              <div style="color: #94a3b8; font-size: 10px; padding: 4px 0; cursor:pointer;">Portal ETC →</div>
+              <div style="color: #94a3b8; font-size: 10px; padding: 4px 0; cursor:pointer;">Jadwal TPA →</div>
+            </div>
+          </div>
+          <!-- Collapsed -->
+          <div style="background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); border-radius: 10px; padding: 10px; margin-bottom: 6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: #a7f3d0; font-weight: 600; font-size: 11px;">🌐 TOEFL</span>
+              <span style="color: #34d399; font-size: 10px;">▶</span>
+            </div>
+          </div>
+          <div style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-radius: 10px; padding: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color: #fde68a; font-weight: 600; font-size: 11px;">📚 Study Materials</span>
+              <span style="color: #fbbf24; font-size: 10px;">▶</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Hybrid Accordion</h3>
+      <p>Centered layout like Linktree, but categories are collapsible accordions. Click to expand/collapse. Keeps the page compact while allowing many categories. Best of both worlds.</p>
+    </div>
+  </div>
+</div>
