@@ -13,16 +13,14 @@ interface LinkStore {
   addLink: (input: Omit<Link, 'id' | 'createdAt'>) => void;
   updateLink: (id: string, updates: Partial<Pick<Link, 'title' | 'url' | 'description' | 'categoryId' | 'order'>>) => void;
   deleteLink: (id: string) => void;
-  exportData: () => { categories: Category[]; links: Link[] };
-  importData: (
-    data: { categories: Category[]; links: Link[] },
-    mode: 'replace' | 'merge'
-  ) => { addedCategories: number; addedLinks: number; skipped: number };
+  reorderCategories: (activeId: string, overId: string) => void;
+  reorderLinks: (categoryId: string, activeId: string, overId: string) => void;
+  moveLinkToCategory: (linkId: string, targetCategoryId: string, insertIndex: number) => void;
 }
 
 export const useLinkStore = create<LinkStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       categories: DEFAULT_CATEGORIES,
       links: DEFAULT_LINKS,
 
@@ -55,24 +53,66 @@ export const useLinkStore = create<LinkStore>()(
       deleteLink: (id) =>
         set((state) => ({ links: state.links.filter((l) => l.id !== id) })),
 
-      exportData: () => {
-        const { categories, links } = get();
-        return { categories, links };
+      reorderCategories: (activeId, overId) => {
+        if (activeId === overId) return;
+        set((state) => {
+          const sorted = [...state.categories].sort((a, b) => a.order - b.order);
+          const oldIndex = sorted.findIndex((c) => c.id === activeId);
+          const newIndex = sorted.findIndex((c) => c.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return state;
+          const reordered = [...sorted];
+          const [moved] = reordered.splice(oldIndex, 1);
+          reordered.splice(newIndex, 0, moved);
+          return {
+            categories: reordered.map((c, i) => ({ ...c, order: i })),
+          };
+        });
       },
 
-      importData: (data, mode) => {
-        if (mode === 'replace') {
-          set({ categories: data.categories, links: data.links });
-          return { addedCategories: data.categories.length, addedLinks: data.links.length, skipped: 0 };
-        }
-        const state = get();
-        const existingCatIds = new Set(state.categories.map((c) => c.id));
-        const existingLinkIds = new Set(state.links.map((l) => l.id));
-        const newCats = data.categories.filter((c) => !existingCatIds.has(c.id));
-        const newLinks = data.links.filter((l) => !existingLinkIds.has(l.id));
-        const skipped = data.categories.length - newCats.length + data.links.length - newLinks.length;
-        set({ categories: [...state.categories, ...newCats], links: [...state.links, ...newLinks] });
-        return { addedCategories: newCats.length, addedLinks: newLinks.length, skipped };
+      reorderLinks: (categoryId, activeId, overId) => {
+        if (activeId === overId) return;
+        set((state) => {
+          const catLinks = state.links
+            .filter((l) => l.categoryId === categoryId)
+            .sort((a, b) => a.order - b.order);
+          const otherLinks = state.links.filter((l) => l.categoryId !== categoryId);
+          const oldIndex = catLinks.findIndex((l) => l.id === activeId);
+          const newIndex = catLinks.findIndex((l) => l.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return state;
+          const reordered = [...catLinks];
+          const [moved] = reordered.splice(oldIndex, 1);
+          reordered.splice(newIndex, 0, moved);
+          return {
+            links: [...otherLinks, ...reordered.map((l, i) => ({ ...l, order: i }))],
+          };
+        });
+      },
+
+      moveLinkToCategory: (linkId, targetCategoryId, insertIndex) => {
+        set((state) => {
+          const link = state.links.find((l) => l.id === linkId);
+          if (!link) return state;
+          const sourceCategoryId = link.categoryId;
+          if (sourceCategoryId === targetCategoryId) return state;
+
+          const sourceLinks = state.links
+            .filter((l) => l.categoryId === sourceCategoryId && l.id !== linkId)
+            .sort((a, b) => a.order - b.order)
+            .map((l, i) => ({ ...l, order: i }));
+
+          const targetLinks = state.links
+            .filter((l) => l.categoryId === targetCategoryId)
+            .sort((a, b) => a.order - b.order);
+          const clampedIndex = Math.min(insertIndex, targetLinks.length);
+          const movedLink = { ...link, categoryId: targetCategoryId };
+          targetLinks.splice(clampedIndex, 0, movedLink);
+          const reorderedTarget = targetLinks.map((l, i) => ({ ...l, order: i }));
+
+          const otherLinks = state.links.filter(
+            (l) => l.categoryId !== sourceCategoryId && l.categoryId !== targetCategoryId
+          );
+          return { links: [...otherLinks, ...sourceLinks, ...reorderedTarget] };
+        });
       },
     }),
     {

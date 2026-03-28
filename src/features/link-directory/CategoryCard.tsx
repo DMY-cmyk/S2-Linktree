@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { staggerItem, cardHover } from '@/animations/variants';
 import { LinkItem } from './LinkItem';
+import { DragHandle } from '@/components/ui/DragHandle';
 import type { Category, Link } from '@/types';
 
 interface CategoryCardProps {
@@ -13,6 +14,12 @@ interface CategoryCardProps {
   onEditCategory: (category: Category) => void;
   onDeleteCategory: (category: Category) => void;
   onAddLink: (categoryId: string) => void;
+  isDragging?: boolean;
+  dragHandleProps?: {
+    listeners: Record<string, unknown> | undefined;
+    attributes: Record<string, unknown>;
+  };
+  renderLinks?: (links: Link[], accentColor: string) => React.ReactNode;
 }
 
 export function CategoryCard({
@@ -23,11 +30,14 @@ export function CategoryCard({
   onEditCategory,
   onDeleteCategory,
   onAddLink,
+  isDragging = false,
+  dragHandleProps,
+  renderLinks,
 }: CategoryCardProps) {
   return (
     <motion.div
       variants={staggerItem}
-      whileHover={cardHover}
+      whileHover={isDragging ? undefined : cardHover}
       className="bg-[var(--bg-card)] border-2 rounded-xl overflow-hidden"
       style={{
         borderColor: category.color,
@@ -42,9 +52,17 @@ export function CategoryCard({
           borderBottom: '2px solid var(--border-color)',
         }}
       >
-        <span className="font-extrabold text-[#222] text-sm">
-          {category.emoji} {category.name}
-        </span>
+        <div className="flex items-center gap-1">
+          {dragHandleProps && (
+            <DragHandle
+              listeners={dragHandleProps.listeners}
+              attributes={dragHandleProps.attributes}
+            />
+          )}
+          <span className="font-extrabold text-[#222] text-sm">
+            {category.emoji} {category.name}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-[#222] opacity-60">
             {links.length} {links.length === 1 ? 'link' : 'links'}
@@ -76,6 +94,8 @@ export function CategoryCard({
           >
             No links yet — click + to add
           </motion.p>
+        ) : renderLinks ? (
+          renderLinks(links, category.color)
         ) : (
           <div className="flex flex-col gap-2">
             <AnimatePresence>
@@ -86,6 +106,7 @@ export function CategoryCard({
                   accentColor={category.color}
                   onEdit={() => onEditLink(link)}
                   onDelete={() => onDeleteLink(link)}
+                  isDragging={isDragging}
                 />
               ))}
             </AnimatePresence>

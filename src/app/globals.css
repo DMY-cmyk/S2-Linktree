@@ -45,3 +45,27 @@ input:focus {
   background: var(--text-secondary);
   border-radius: 4px;
 }
+
+/* Z-index layering for 3D background */
+.bg-canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.content-layer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reduced motion: hide WebGL, show CSS fallback */
+@media (prefers-reduced-motion: reduce) {
+  .bg-canvas-layer canvas {
+    display: none;
+  }
+  .bg-canvas-layer .reduced-motion-fallback {
+    display: block;
+  }
+}

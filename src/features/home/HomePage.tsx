@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { HeroSection } from './HeroSection';
 import { CategoryGrid } from '@/features/link-directory/CategoryGrid';
 import { SearchBar } from '@/features/search/SearchBar';
@@ -16,14 +16,12 @@ import { useFilteredLinks } from '@/hooks/useFilteredLinks';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
 import type { Link, Category } from '@/types';
+import dynamic from 'next/dynamic';
 
-function isValidImport(data: unknown): data is { categories: Category[]; links: Link[] } {
-  if (!data || typeof data !== 'object') return false;
-  const d = data as Record<string, unknown>;
-  if (!Array.isArray(d.categories) || !Array.isArray(d.links)) return false;
-  return d.categories.every((c: unknown) => c && typeof c === 'object' && 'id' in c && 'name' in c)
-      && d.links.every((l: unknown) => l && typeof l === 'object' && 'id' in l && 'url' in l && 'categoryId' in l);
-}
+const AnimatedBackground = dynamic(
+  () => import('@/features/background-effects/AnimatedBackground').then((mod) => ({ default: mod.AnimatedBackground })),
+  { ssr: false }
+);
 
 export function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,74 +35,13 @@ export function HomePage() {
     name: string;
   } | null>(null);
   const [preselectedCategoryId, setPreselectedCategoryId] = useState<string | undefined>();
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
 
   const filteredResults = useFilteredLinks(searchQuery);
   const deleteLink = useLinkStore((s) => s.deleteLink);
   const deleteCategory = useLinkStore((s) => s.deleteCategory);
-  const exportData = useLinkStore((s) => s.exportData);
-  const importData = useLinkStore((s) => s.importData);
   const { addToast } = useToastStore();
   const links = useLinkStore((s) => s.links);
-
-  // Close settings menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
-        setSettingsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleExport = () => {
-    const data = exportData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 's2-linktree-backup.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    addToast('Data exported successfully', 'success');
-  };
-
-  const handleImport = (mode: 'replace' | 'merge') => {
-    if (mode === 'replace') {
-      const confirmed = window.confirm('This will replace all current data. Are you sure?');
-      if (!confirmed) return;
-    }
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const data = JSON.parse(ev.target?.result as string);
-          if (!isValidImport(data)) {
-            addToast('Invalid backup file format', 'error');
-            return;
-          }
-          const result = importData(data, mode);
-          addToast(
-            mode === 'replace'
-              ? `Imported ${result.addedCategories} categories, ${result.addedLinks} links`
-              : `Added ${result.addedCategories} categories, ${result.addedLinks} links. Skipped ${result.skipped} duplicates.`,
-            'success'
-          );
-        } catch {
-          addToast('Invalid backup file', 'error');
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  };
+  const categories = useLinkStore((s) => s.categories);
 
   const handleDelete = () => {
     if (!deletingItem) return;
@@ -127,7 +64,9 @@ export function HomePage() {
     links.filter((l) => l.categoryId === categoryId).length;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)]">
+    <>
+      <AnimatedBackground />
+      <div className="content-layer min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b-2 border-[var(--border-color)] px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
@@ -142,36 +81,6 @@ export function HomePage() {
           <div className="flex items-center gap-3 flex-wrap">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
             <ThemeToggle />
-            <div className="relative" ref={settingsRef}>
-              <button
-                onClick={() => setSettingsOpen(!settingsOpen)}
-                className="px-3 py-1.5 text-sm font-bold border-2 border-[var(--border-color)] rounded-lg bg-[var(--bg-card)] text-[var(--text-primary)] shadow-[2px_2px_0px_var(--border-color)] cursor-pointer"
-              >
-                ⚙️
-              </button>
-              {settingsOpen && (
-                <div className="absolute right-0 top-full mt-2 bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-lg shadow-[3px_3px_0px_var(--border-color)] p-2 min-w-[160px] z-50">
-                <button
-                  onClick={() => { handleExport(); setSettingsOpen(false); }}
-                  className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
-                >
-                  📤 Export Data
-                </button>
-                <button
-                  onClick={() => { handleImport('merge'); setSettingsOpen(false); }}
-                  className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
-                >
-                  📥 Import (Merge)
-                </button>
-                <button
-                  onClick={() => { handleImport('replace'); setSettingsOpen(false); }}
-                  className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
-                >
-                  🔄 Import (Replace)
-                </button>
-              </div>
-              )}
-            </div>
             <Button onClick={() => setIsAddLinkOpen(true)} size="sm">
               + Add Link
             </Button>
@@ -184,6 +93,8 @@ export function HomePage() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
         <CategoryGrid
           results={filteredResults}
+          allLinks={links}
+          allCategories={categories}
           searchQuery={searchQuery}
           onClearSearch={() => setSearchQuery('')}
           onEditLink={setEditingLink}
@@ -243,5 +154,6 @@ export function HomePage() {
 
       <ToastContainer />
     </div>
+    </>
   );
 }

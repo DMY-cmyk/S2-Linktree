@@ -85,49 +85,176 @@ describe('useLinkStore', () => {
     });
   });
 
-  describe('exportData', () => {
-    it('returns categories and links', () => {
-      useLinkStore.getState().addCategory({ name: 'C', emoji: 'e', color: '#fff', order: 0 });
-      useLinkStore.getState().addLink({ title: 'L', url: 'https://l.com', categoryId: 'x', order: 0 });
-      const data = useLinkStore.getState().exportData();
-      expect(data.categories).toHaveLength(1);
-      expect(data.links).toHaveLength(1);
+  describe('reorderCategories', () => {
+    it('swaps two categories and reassigns sequential order values', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c1', 'c3');
+      const cats = useLinkStore.getState().categories;
+      const sorted = [...cats].sort((a, b) => a.order - b.order);
+      expect(sorted.map((c) => c.id)).toEqual(['c2', 'c3', 'c1']);
+      expect(sorted[0].order).toBe(0);
+      expect(sorted[1].order).toBe(1);
+      expect(sorted[2].order).toBe(2);
+    });
+
+    it('handles moving a category backward', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c3', 'c1');
+      const cats = useLinkStore.getState().categories;
+      const sorted = [...cats].sort((a, b) => a.order - b.order);
+      expect(sorted.map((c) => c.id)).toEqual(['c3', 'c1', 'c2']);
+      expect(sorted[0].order).toBe(0);
+      expect(sorted[1].order).toBe(1);
+      expect(sorted[2].order).toBe(2);
+    });
+
+    it('does nothing when activeId equals overId', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+        ],
+        links: [],
+      });
+      useLinkStore.getState().reorderCategories('c1', 'c1');
+      expect(useLinkStore.getState().categories[0].order).toBe(0);
     });
   });
 
-  describe('importData', () => {
-    it('replaces all data in replace mode', () => {
-      useLinkStore.getState().addCategory({ name: 'Old', emoji: 'o', color: '#000', order: 0 });
-      const result = useLinkStore.getState().importData({
-        categories: [{ id: 'n1', name: 'New', emoji: 'n', color: '#fff', order: 0, createdAt: 1 }],
-        links: [{ id: 'nl1', categoryId: 'n1', title: 'NL', url: 'https://n.com', order: 0, createdAt: 1 }],
-      }, 'replace');
-      expect(useLinkStore.getState().categories[0].name).toBe('New');
-      expect(result.addedCategories).toBe(1);
-      expect(result.addedLinks).toBe(1);
+  describe('reorderLinks', () => {
+    it('reorders links within a category', () => {
+      useLinkStore.setState({
+        categories: [{ id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 }],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c1', title: 'L3', url: 'https://3.com', order: 2, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l3');
+      const links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c1')
+        .sort((a, b) => a.order - b.order);
+      expect(links.map((l) => l.id)).toEqual(['l2', 'l3', 'l1']);
+      expect(links[0].order).toBe(0);
+      expect(links[1].order).toBe(1);
+      expect(links[2].order).toBe(2);
     });
 
-    it('merges new items and skips duplicates by id', () => {
+    it('does not affect links in other categories', () => {
       useLinkStore.setState({
-        categories: [{ id: 'ex', name: 'Existing', emoji: 'e', color: '#000', order: 0, createdAt: 1 }],
-        links: [{ id: 'el1', categoryId: 'ex', title: 'EL', url: 'https://e.com', order: 0, createdAt: 1 }],
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c2', title: 'L3', url: 'https://3.com', order: 0, createdAt: 1 },
+        ],
       });
-      const result = useLinkStore.getState().importData({
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l2');
+      const c2Links = useLinkStore.getState().links.filter((l) => l.categoryId === 'c2');
+      expect(c2Links[0].order).toBe(0);
+    });
+
+    it('does nothing when activeId equals overId', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().reorderLinks('c1', 'l1', 'l1');
+      expect(useLinkStore.getState().links[0].order).toBe(0);
+    });
+  });
+
+  describe('moveLinkToCategory', () => {
+    it('moves a link to a different category at specified index', () => {
+      useLinkStore.setState({
         categories: [
-          { id: 'ex', name: 'Dup', emoji: 'e', color: '#000', order: 0, createdAt: 1 },
-          { id: 'new1', name: 'New', emoji: 'n', color: '#fff', order: 1, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
         ],
         links: [
-          { id: 'el1', categoryId: 'ex', title: 'DupL', url: 'https://d.com', order: 0, createdAt: 1 },
-          { id: 'nl1', categoryId: 'new1', title: 'NewL', url: 'https://n.com', order: 0, createdAt: 1 },
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c2', title: 'L3', url: 'https://3.com', order: 0, createdAt: 1 },
         ],
-      }, 'merge');
-      expect(useLinkStore.getState().categories).toHaveLength(2);
-      expect(useLinkStore.getState().links).toHaveLength(2);
-      expect(result.addedCategories).toBe(1);
-      expect(result.addedLinks).toBe(1);
-      expect(result.skipped).toBe(2);
-      expect(useLinkStore.getState().categories[0].name).toBe('Existing');
+      });
+      useLinkStore.getState().moveLinkToCategory('l1', 'c2', 0);
+      const c1Links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c1')
+        .sort((a, b) => a.order - b.order);
+      const c2Links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c2')
+        .sort((a, b) => a.order - b.order);
+      expect(c1Links.map((l) => l.id)).toEqual(['l2']);
+      expect(c1Links[0].order).toBe(0);
+      expect(c2Links.map((l) => l.id)).toEqual(['l1', 'l3']);
+      expect(c2Links[0].order).toBe(0);
+      expect(c2Links[1].order).toBe(1);
+    });
+
+    it('reassigns order values in source category after removal', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+          { id: 'l3', categoryId: 'c1', title: 'L3', url: 'https://3.com', order: 2, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().moveLinkToCategory('l2', 'c2', 0);
+      const c1Links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c1')
+        .sort((a, b) => a.order - b.order);
+      expect(c1Links.map((l) => l.id)).toEqual(['l1', 'l3']);
+      expect(c1Links[0].order).toBe(0);
+      expect(c1Links[1].order).toBe(1);
+    });
+
+    it('appends to end of target category when insertIndex exceeds length', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c2', title: 'L2', url: 'https://2.com', order: 0, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().moveLinkToCategory('l1', 'c2', 99);
+      const c2Links = useLinkStore.getState().links
+        .filter((l) => l.categoryId === 'c2')
+        .sort((a, b) => a.order - b.order);
+      expect(c2Links.map((l) => l.id)).toEqual(['l2', 'l1']);
+      expect(c2Links[0].order).toBe(0);
+      expect(c2Links[1].order).toBe(1);
+    });
+
+    it('does nothing when moving to the same category', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
+          { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
+        ],
+      });
+      useLinkStore.getState().moveLinkToCategory('l1', 'c1', 1);
+      const links = useLinkStore.getState().links;
+      expect(links).toHaveLength(2);
+      expect(links[0].order).toBe(0);
+      expect(links[1].order).toBe(1);
     });
   });
 });
