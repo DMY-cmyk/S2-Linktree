@@ -44,15 +44,13 @@ Remove the `opacity` prop from the component interface (no longer variable).
 
 Replace the current 2-light setup with a classic 3-light rig:
 
-| Light | Position | Intensity | Purpose |
-|-------|----------|-----------|---------|
-| Ambient | N/A | `0.3` (dark) / `0.5` (light) | Base fill |
-| Directional (key) | `[5, 5, 5]` | `1.0` | Primary highlights |
-| Directional (rim) | `[-3, -2, -5]` | `0.6` | Edge highlights revealing 3D silhouette |
+| Light | Position | Intensity (dark / light) | Purpose |
+|-------|----------|--------------------------|---------|
+| Ambient | N/A | `0.3` / `0.5` | Base fill |
+| Directional (key) | `[5, 5, 5]` | `1.2` / `0.9` | Primary highlights |
+| Directional (rim) | `[-3, -2, -5]` | `0.7` / `0.5` | Edge highlights revealing 3D silhouette |
 
 Remove the current `pointLight`.
-
-Theme-adaptive: dark mode gets slightly brighter directional intensities, light mode slightly dimmer.
 
 ### 3. Blob Configuration
 
