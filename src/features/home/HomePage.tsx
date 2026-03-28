@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { HeroSection } from './HeroSection';
 import { CategoryGrid } from '@/features/link-directory/CategoryGrid';
 import { SearchBar } from '@/features/search/SearchBar';
@@ -17,6 +17,14 @@ import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
 import type { Link, Category } from '@/types';
 
+function isValidImport(data: unknown): data is { categories: Category[]; links: Link[] } {
+  if (!data || typeof data !== 'object') return false;
+  const d = data as Record<string, unknown>;
+  if (!Array.isArray(d.categories) || !Array.isArray(d.links)) return false;
+  return d.categories.every((c: unknown) => c && typeof c === 'object' && 'id' in c && 'name' in c)
+      && d.links.every((l: unknown) => l && typeof l === 'object' && 'id' in l && 'url' in l && 'categoryId' in l);
+}
+
 export function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddLinkOpen, setIsAddLinkOpen] = useState(false);
@@ -29,11 +37,27 @@ export function HomePage() {
     name: string;
   } | null>(null);
   const [preselectedCategoryId, setPreselectedCategoryId] = useState<string | undefined>();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const filteredResults = useFilteredLinks(searchQuery);
-  const { deleteLink, deleteCategory, exportData, importData } = useLinkStore();
+  const deleteLink = useLinkStore((s) => s.deleteLink);
+  const deleteCategory = useLinkStore((s) => s.deleteCategory);
+  const exportData = useLinkStore((s) => s.exportData);
+  const importData = useLinkStore((s) => s.importData);
   const { addToast } = useToastStore();
   const links = useLinkStore((s) => s.links);
+
+  // Close settings menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setSettingsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleExport = () => {
     const data = exportData();
@@ -62,6 +86,10 @@ export function HomePage() {
       reader.onload = (ev) => {
         try {
           const data = JSON.parse(ev.target?.result as string);
+          if (!isValidImport(data)) {
+            addToast('Invalid backup file format', 'error');
+            return;
+          }
           const result = importData(data, mode);
           addToast(
             mode === 'replace'
@@ -114,30 +142,35 @@ export function HomePage() {
           <div className="flex items-center gap-3 flex-wrap">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
             <ThemeToggle />
-            <div className="relative group">
-              <button className="px-3 py-1.5 text-sm font-bold border-2 border-[var(--border-color)] rounded-lg bg-[var(--bg-card)] text-[var(--text-primary)] shadow-[2px_2px_0px_var(--border-color)] cursor-pointer">
+            <div className="relative" ref={settingsRef}>
+              <button
+                onClick={() => setSettingsOpen(!settingsOpen)}
+                className="px-3 py-1.5 text-sm font-bold border-2 border-[var(--border-color)] rounded-lg bg-[var(--bg-card)] text-[var(--text-primary)] shadow-[2px_2px_0px_var(--border-color)] cursor-pointer"
+              >
                 ⚙️
               </button>
-              <div className="absolute right-0 top-full mt-2 bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-lg shadow-[3px_3px_0px_var(--border-color)] p-2 hidden group-hover:block min-w-[160px] z-50">
+              {settingsOpen && (
+                <div className="absolute right-0 top-full mt-2 bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-lg shadow-[3px_3px_0px_var(--border-color)] p-2 min-w-[160px] z-50">
                 <button
-                  onClick={handleExport}
+                  onClick={() => { handleExport(); setSettingsOpen(false); }}
                   className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
                 >
                   📤 Export Data
                 </button>
                 <button
-                  onClick={() => handleImport('merge')}
+                  onClick={() => { handleImport('merge'); setSettingsOpen(false); }}
                   className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
                 >
                   📥 Import (Merge)
                 </button>
                 <button
-                  onClick={() => handleImport('replace')}
+                  onClick={() => { handleImport('replace'); setSettingsOpen(false); }}
                   className="w-full text-left px-3 py-2 text-sm font-bold hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-primary)]"
                 >
                   🔄 Import (Replace)
                 </button>
               </div>
+              )}
             </div>
             <Button onClick={() => setIsAddLinkOpen(true)} size="sm">
               + Add Link

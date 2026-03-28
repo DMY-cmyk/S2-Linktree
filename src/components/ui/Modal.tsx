@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { modalOverlay, modalContent } from '@/animations/variants';
 
@@ -12,6 +12,8 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -31,6 +33,16 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Focus first focusable element when modal opens
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length) focusable[0].focus();
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -41,11 +53,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             onClick={onClose}
           />
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
             {...modalContent}
             className="relative w-full max-w-md bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-xl shadow-[6px_6px_0px_var(--border-color)] p-6 max-h-[85vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-extrabold text-[var(--text-primary)]">{title}</h2>
+              <h2 id="modal-title" className="text-lg font-extrabold text-[var(--text-primary)]">{title}</h2>
               <button
                 onClick={onClose}
                 className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold text-xl cursor-pointer"

@@ -5,9 +5,9 @@ import { useToastStore } from '@/store/useToastStore';
 import { cn } from '@/lib/utils';
 
 const variantStyles = {
-  success: 'bg-[#a8ff78] text-[#222] border-[#222]',
-  warning: 'bg-[#ffd078] text-[#222] border-[#222]',
-  error: 'bg-[#ff6b6b] text-white border-[#222]',
+  success: 'bg-[#a8ff78] text-[#222] border-[var(--border-color)]',
+  warning: 'bg-[#ffd078] text-[#222] border-[var(--border-color)]',
+  error: 'bg-[#ff6b6b] text-white border-[var(--border-color)]',
 };
 
 export function ToastContainer() {

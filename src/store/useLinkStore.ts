@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Category, Link } from '@/types';
 import { generateId } from '@/lib/utils';
 import { DEFAULT_CATEGORIES, DEFAULT_LINKS } from '@/lib/constants';
@@ -75,6 +75,22 @@ export const useLinkStore = create<LinkStore>()(
         return { addedCategories: newCats.length, addedLinks: newLinks.length, skipped };
       },
     }),
-    { name: 's2-linktree-store' }
+    {
+      name: 's2-linktree-store',
+      storage: createJSONStorage(() => ({
+        getItem: (name: string) => localStorage.getItem(name),
+        setItem: (name: string, value: string) => {
+          try {
+            localStorage.setItem(name, value);
+          } catch {
+            // Lazy-import toast store to avoid circular dependency
+            import('@/store/useToastStore').then(({ useToastStore }) => {
+              useToastStore.getState().addToast('Storage full — try deleting unused links', 'error');
+            });
+          }
+        },
+        removeItem: (name: string) => localStorage.removeItem(name),
+      })),
+    }
   )
 );

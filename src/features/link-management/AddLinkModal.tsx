@@ -27,6 +27,13 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [titleTouched, setTitleTouched] = useState(false);
 
+  // Sync preselectedCategoryId when modal re-opens with new category
+  useEffect(() => {
+    if (isOpen && preselectedCategoryId) {
+      setCategoryId(preselectedCategoryId);
+    }
+  }, [isOpen, preselectedCategoryId]);
+
   // Auto-suggest title from URL when title hasn't been manually edited
   useEffect(() => {
     if (!titleTouched && url.trim()) {

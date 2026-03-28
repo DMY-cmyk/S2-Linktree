@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') ?? 'dark';
+    }
+    return 'dark';
+  });
 
   useEffect(() => {
     const stored = localStorage.getItem('s2-linktree-theme') as 'light' | 'dark' | null;
