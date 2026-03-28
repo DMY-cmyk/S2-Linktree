@@ -74,7 +74,7 @@ export function BlobScene({ mouseX, mouseY }: BlobSceneProps) {
           speed={blob.speed}
           amplitude={blob.amplitude}
           phase={blob.phase}
-          opacity={sphereOpacity}
+
         />
       ))}
 
