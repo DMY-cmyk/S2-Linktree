@@ -26,6 +26,7 @@ function CameraParallax({ mouseX, mouseY }: { mouseX: number; mouseY: number }) 
   useFrame(() => {
     targetRef.current.x = mouseX * 0.3;
     targetRef.current.y = -mouseY * 0.3;
+    // eslint-disable-next-line react-hooks/immutability -- R3F requires direct camera mutation in useFrame
     camera.position.x += (targetRef.current.x - camera.position.x) * 0.05;
     camera.position.y += (targetRef.current.y - camera.position.y) * 0.05;
     camera.lookAt(0, 0, 0);
@@ -35,11 +36,12 @@ function CameraParallax({ mouseX, mouseY }: { mouseX: number; mouseY: number }) 
 }
 
 function useThemeConfig() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(
+    () => typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') !== 'light'
+  );
 
   useEffect(() => {
     const html = document.documentElement;
-    setIsDark(html.getAttribute('data-theme') !== 'light');
 
     const observer = new MutationObserver(() => {
       setIsDark(html.getAttribute('data-theme') !== 'light');
