@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { FloatingBlob } from './FloatingBlob';
+import type { QualityLevel } from '@/hooks/useDeviceCapability';
 
 const BLOB_CONFIG = [
   { position: [-3, 1, -4] as [number, number, number], color: '#a8ff78', radius: 1.6, speed: [0.2, 0.3, 0.15] as [number, number, number], amplitude: [1.5, 1.0, 0.8] as [number, number, number], phase: [0, 0.5, 1.0] as [number, number, number] },
@@ -17,7 +18,11 @@ const BLOB_CONFIG = [
 interface BlobSceneProps {
   mouseX: number;
   mouseY: number;
+  quality?: QualityLevel;
 }
+
+const SEGMENTS: Record<QualityLevel, number> = { high: 64, mid: 32, low: 16 };
+const BLOB_COUNT: Record<QualityLevel, number> = { high: 6, mid: 4, low: 2 };
 
 function CameraParallax({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   const { camera } = useThree();
@@ -58,8 +63,10 @@ function useThemeConfig() {
   };
 }
 
-export function BlobScene({ mouseX, mouseY }: BlobSceneProps) {
+export function BlobScene({ mouseX, mouseY, quality = 'mid' }: BlobSceneProps) {
   const { bloomIntensity, ambientIntensity, keyLightIntensity, rimLightIntensity } = useThemeConfig();
+  const segments = SEGMENTS[quality];
+  const blobs = BLOB_CONFIG.slice(0, BLOB_COUNT[quality]);
 
   return (
     <>
@@ -67,7 +74,7 @@ export function BlobScene({ mouseX, mouseY }: BlobSceneProps) {
       <directionalLight position={[5, 5, 5]} intensity={keyLightIntensity} />
       <directionalLight position={[-3, -2, -5]} intensity={rimLightIntensity} />
 
-      {BLOB_CONFIG.map((blob, i) => (
+      {blobs.map((blob, i) => (
         <FloatingBlob
           key={i}
           position={blob.position}
@@ -76,18 +83,21 @@ export function BlobScene({ mouseX, mouseY }: BlobSceneProps) {
           speed={blob.speed}
           amplitude={blob.amplitude}
           phase={blob.phase}
+          segments={segments}
         />
       ))}
 
       <CameraParallax mouseX={mouseX} mouseY={mouseY} />
 
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.2}
-          luminanceSmoothing={0.9}
-          intensity={bloomIntensity}
-        />
-      </EffectComposer>
+      {quality === 'high' && (
+        <EffectComposer>
+          <Bloom
+            luminanceThreshold={0.2}
+            luminanceSmoothing={0.9}
+            intensity={bloomIntensity}
+          />
+        </EffectComposer>
+      )}
     </>
   );
 }

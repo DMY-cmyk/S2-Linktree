@@ -12,6 +12,7 @@ interface FloatingBlobProps {
   speed: [number, number, number];
   amplitude: [number, number, number];
   phase: [number, number, number];
+  segments?: number;
 }
 
 export function FloatingBlob({
@@ -21,6 +22,7 @@ export function FloatingBlob({
   speed,
   amplitude,
   phase,
+  segments = 64,
 }: FloatingBlobProps) {
   const meshRef = useRef<Mesh | null>(null);
 
@@ -39,7 +41,7 @@ export function FloatingBlob({
 
   return (
     <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[radius, 64, 64]} />
+      <sphereGeometry args={[radius, segments, segments]} />
       <MeshDistortMaterial
         color={color}
         roughness={0.3}
