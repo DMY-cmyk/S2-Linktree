@@ -2,17 +2,14 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { FloatingBlob } from './FloatingBlob';
 import type { QualityLevel } from '@/hooks/useDeviceCapability';
 
 const BLOB_CONFIG = [
-  { position: [-3, 1, -4] as [number, number, number], color: '#a8ff78', radius: 1.6, speed: [0.2, 0.3, 0.15] as [number, number, number], amplitude: [1.5, 1.0, 0.8] as [number, number, number], phase: [0, 0.5, 1.0] as [number, number, number] },
+  { position: [-3, 1, -2] as [number, number, number], color: '#a8ff78', radius: 1.6, speed: [0.2, 0.3, 0.15] as [number, number, number], amplitude: [1.5, 1.0, 0.8] as [number, number, number], phase: [0, 0.5, 1.0] as [number, number, number] },
   { position: [3, -1, -5] as [number, number, number], color: '#78d6ff', radius: 1.44, speed: [0.15, 0.2, 0.25] as [number, number, number], amplitude: [1.2, 1.5, 0.6] as [number, number, number], phase: [1.0, 0, 0.7] as [number, number, number] },
-  { position: [0, 2, -3] as [number, number, number], color: '#ff78a8', radius: 1.2, speed: [0.25, 0.15, 0.3] as [number, number, number], amplitude: [0.8, 1.2, 1.0] as [number, number, number], phase: [0.3, 1.2, 0] as [number, number, number] },
-  { position: [-2, -2, -4] as [number, number, number], color: '#ffd078', radius: 0.96, speed: [0.3, 0.25, 0.2] as [number, number, number], amplitude: [1.0, 0.8, 1.2] as [number, number, number], phase: [0.7, 0.3, 1.5] as [number, number, number] },
-  { position: [2, 0, -6] as [number, number, number], color: '#d078ff', radius: 1.76, speed: [0.1, 0.2, 0.15] as [number, number, number], amplitude: [1.8, 1.0, 0.5] as [number, number, number], phase: [1.5, 0.8, 0.2] as [number, number, number] },
-  { position: [0, -1, -5] as [number, number, number], color: '#78ffd0', radius: 0.72, speed: [0.35, 0.15, 0.25] as [number, number, number], amplitude: [0.6, 1.5, 1.0] as [number, number, number], phase: [0.2, 1.0, 0.5] as [number, number, number] },
+  { position: [0, 2, -8] as [number, number, number], color: '#ff78a8', radius: 1.0, speed: [0.25, 0.15, 0.3] as [number, number, number], amplitude: [0.8, 1.2, 1.0] as [number, number, number], phase: [0.3, 1.2, 0] as [number, number, number] },
+  { position: [-2, -2, -9] as [number, number, number], color: '#d078ff', radius: 0.8, speed: [0.3, 0.25, 0.2] as [number, number, number], amplitude: [1.0, 0.8, 1.2] as [number, number, number], phase: [0.7, 0.3, 1.5] as [number, number, number] },
 ];
 
 interface BlobSceneProps {
@@ -21,8 +18,8 @@ interface BlobSceneProps {
   quality?: QualityLevel;
 }
 
-const SEGMENTS: Record<QualityLevel, number> = { high: 64, mid: 32, low: 16 };
-const BLOB_COUNT: Record<QualityLevel, number> = { high: 6, mid: 4, low: 2 };
+const SEGMENTS: Record<QualityLevel, number> = { high: 32, mid: 20, low: 12 };
+const BLOB_COUNT: Record<QualityLevel, number> = { high: 4, mid: 3, low: 2 };
 
 function CameraParallax({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   const { camera } = useThree();
@@ -56,7 +53,7 @@ function useThemeConfig() {
   }, []);
 
   return {
-    bloomIntensity: isDark ? 1.5 : 0.8,
+    emissiveIntensity: isDark ? 0.4 : 0.2,
     ambientIntensity: isDark ? 0.3 : 0.5,
     keyLightIntensity: isDark ? 1.2 : 0.9,
     rimLightIntensity: isDark ? 0.7 : 0.5,
@@ -64,7 +61,7 @@ function useThemeConfig() {
 }
 
 export function BlobScene({ mouseX, mouseY, quality = 'mid' }: BlobSceneProps) {
-  const { bloomIntensity, ambientIntensity, keyLightIntensity, rimLightIntensity } = useThemeConfig();
+  const { emissiveIntensity, ambientIntensity, keyLightIntensity, rimLightIntensity } = useThemeConfig();
   const segments = SEGMENTS[quality];
   const blobs = BLOB_CONFIG.slice(0, BLOB_COUNT[quality]);
 
@@ -84,20 +81,11 @@ export function BlobScene({ mouseX, mouseY, quality = 'mid' }: BlobSceneProps) {
           amplitude={blob.amplitude}
           phase={blob.phase}
           segments={segments}
+          emissiveIntensity={emissiveIntensity}
         />
       ))}
 
       <CameraParallax mouseX={mouseX} mouseY={mouseY} />
-
-      {quality === 'high' && (
-        <EffectComposer>
-          <Bloom
-            luminanceThreshold={0.2}
-            luminanceSmoothing={0.9}
-            intensity={bloomIntensity}
-          />
-        </EffectComposer>
-      )}
     </>
   );
 }

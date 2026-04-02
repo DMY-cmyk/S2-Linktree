@@ -11,6 +11,10 @@
   --accent: #7c3aed;
   --shimmer-base: #e0e0e8;
   --shimmer-highlight: #f0f0f8;
+  --aurora-1: #ffd6a5;
+  --aurora-2: #a8edea;
+  --aurora-3: #d4b4f4;
+  --aurora-4: #ffd6a5;
 }
 
 [data-theme="dark"] {
@@ -23,6 +27,10 @@
   --accent: #a855f7;
   --shimmer-base: #2a2a3e;
   --shimmer-highlight: #3a3a4e;
+  --aurora-1: #7c3aed;
+  --aurora-2: #06b6d4;
+  --aurora-3: #db2777;
+  --aurora-4: #7c3aed;
 }
 
 body {
@@ -98,11 +106,33 @@ input:focus {
   animation: shimmer 1.5s infinite;
 }
 
-.bg-gradient-fallback {
+@keyframes auroraShift {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-aurora-gradient {
   background: linear-gradient(
     135deg,
-    var(--bg-primary) 0%,
-    var(--bg-card-secondary) 50%,
-    var(--bg-primary) 100%
+    var(--aurora-1) 0%,
+    var(--aurora-2) 33%,
+    var(--aurora-3) 66%,
+    var(--aurora-4) 100%
   );
+  background-size: 400% 400%;
+  animation: auroraShift 12s ease infinite;
+  opacity: 0.35;
+}
+
+/* Smooth canvas fade-in */
+.canvas-fade-in {
+  opacity: 0;
+  animation: canvasFadeIn 600ms ease-out forwards;
+}
+
+@keyframes canvasFadeIn {
+  to { opacity: 1; }
 }

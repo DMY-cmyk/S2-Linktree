@@ -13,11 +13,12 @@ describe('useDeviceCapability', () => {
     expect(result.current).toBe('mid');
   });
 
-  it('returns high for high DPR and many cores', () => {
+  it('returns mid for high DPR and many cores but no dedicated GPU', () => {
     Object.defineProperty(window, 'devicePixelRatio', { value: 2, configurable: true });
-    Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8, configurable: true });
+    Object.defineProperty(navigator, 'hardwareConcurrency', { value: 12, configurable: true });
     const { result } = renderHook(() => useDeviceCapability());
-    expect(result.current).toBe('high');
+    // Without a real WebGL context (jsdom), hasDedicatedGPU returns false → 'mid'
+    expect(result.current).toBe('mid');
   });
 
   it('returns low for low DPR', () => {

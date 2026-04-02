@@ -24,7 +24,7 @@ function ReducedMotionFallback() {
 }
 
 function GradientFallback() {
-  return <div className="absolute inset-0 bg-gradient-fallback" />;
+  return <div className="absolute inset-0 bg-aurora-gradient" />;
 }
 
 export function AnimatedBackground() {
@@ -88,6 +88,7 @@ export function AnimatedBackground() {
       ) : showCanvas ? (
         <Suspense fallback={null}>
           <Canvas
+            className="canvas-fade-in"
             dpr={DPR_MAP[quality]}
             camera={{ position: [0, 0, 10], fov: 50 }}
             style={{ background: 'transparent' }}
