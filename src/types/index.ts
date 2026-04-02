@@ -17,10 +17,12 @@ export interface Link {
   createdAt: number;
 }
 
-export type ToastVariant = 'success' | 'warning' | 'error';
+export type ToastVariant = 'success' | 'warning' | 'error' | 'undo';
 
 export interface Toast {
   id: string;
   message: string;
   variant: ToastVariant;
+  undoAction?: () => void;
+  duration?: number;
 }
