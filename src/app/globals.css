@@ -7,6 +7,10 @@
   --text-primary: #222222;
   --text-secondary: #666666;
   --border-color: #222222;
+  --bg-card-secondary: #f0f0f5;
+  --accent: #7c3aed;
+  --shimmer-base: #e0e0e8;
+  --shimmer-highlight: #f0f0f8;
 }
 
 [data-theme="dark"] {
@@ -15,6 +19,10 @@
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.6);
   --border-color: #ffffff;
+  --bg-card-secondary: #1a1a3e;
+  --accent: #a855f7;
+  --shimmer-base: #2a2a3e;
+  --shimmer-highlight: #3a3a4e;
 }
 
 body {
@@ -68,4 +76,33 @@ input:focus {
   .bg-canvas-layer .reduced-motion-fallback {
     display: block;
   }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base) 25%,
+    var(--shimmer-highlight) 50%,
+    var(--shimmer-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.bg-gradient-fallback {
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-card-secondary) 50%,
+    var(--bg-primary) 100%
+  );
 }
