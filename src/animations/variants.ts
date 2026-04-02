@@ -43,3 +43,14 @@ export const cardHover = {
   rotate: 0.5,
   transition: springGentle,
 };
+
+export const popOut = {
+  initial: { scale: 1, opacity: 1 },
+  exit: { scale: 0.8, opacity: 0, transition: { duration: 0.2 } },
+};
+
+export const springSmooth = {
+  type: 'spring' as const,
+  stiffness: 300,
+  damping: 30,
+};
