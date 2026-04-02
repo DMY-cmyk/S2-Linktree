@@ -1,15 +1,24 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { forwardRef, useRef, useEffect, useState, useImperativeHandle } from 'react';
 
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-export function SearchBar({ value, onChange }: SearchBarProps) {
+export interface SearchBarRef {
+  focus: () => void;
+}
+
+export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function SearchBar({ value, onChange }, ref) {
   const [localValue, setLocalValue] = useState(value);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+  }));
 
   useEffect(() => {
     setLocalValue(value);
@@ -30,6 +39,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none">🔍</span>
       <input
+        ref={inputRef}
         type="text"
         value={localValue}
         onChange={handleChange}
@@ -38,4 +48,4 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
       />
     </div>
   );
-}
+});

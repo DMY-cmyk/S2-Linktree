@@ -33,6 +33,7 @@ export function ThemeToggle() {
       whileTap={{ scale: 0.9 }}
       className="px-3 py-1.5 text-sm font-bold border-2 border-[var(--border-color)] rounded-lg bg-[#ffd078] text-[#222] shadow-[2px_2px_0px_var(--border-color)] cursor-pointer"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      data-testid="theme-toggle"
     >
       {theme === 'dark' ? '☀️' : '🌙'}
     </motion.button>

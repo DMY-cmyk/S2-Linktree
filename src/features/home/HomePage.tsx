@@ -1,20 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { HeroSection } from './HeroSection';
 import { CategoryGrid } from '@/features/link-directory/CategoryGrid';
 import { SearchBar } from '@/features/search/SearchBar';
+import type { SearchBarRef } from '@/features/search/SearchBar';
 import { AddLinkModal } from '@/features/link-management/AddLinkModal';
 import { EditLinkModal } from '@/features/link-management/EditLinkModal';
 import { AddCategoryModal } from '@/features/link-management/AddCategoryModal';
 import { EditCategoryModal } from '@/features/link-management/EditCategoryModal';
-import { DeleteConfirm } from '@/features/link-management/DeleteConfirm';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { useFilteredLinks } from '@/hooks/useFilteredLinks';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import type { Link, Category } from '@/types';
 import dynamic from 'next/dynamic';
 
@@ -29,39 +30,49 @@ export function HomePage() {
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [deletingItem, setDeletingItem] = useState<{
-    type: 'link' | 'category';
-    id: string;
-    name: string;
-  } | null>(null);
   const [preselectedCategoryId, setPreselectedCategoryId] = useState<string | undefined>();
+  const searchBarRef = useRef<SearchBarRef>(null);
 
   const filteredResults = useFilteredLinks(searchQuery);
   const deleteLink = useLinkStore((s) => s.deleteLink);
   const deleteCategory = useLinkStore((s) => s.deleteCategory);
+  const getSnapshot = useLinkStore((s) => s.getSnapshot);
+  const restoreSnapshot = useLinkStore((s) => s.restoreSnapshot);
   const { addToast } = useToastStore();
   const links = useLinkStore((s) => s.links);
   const categories = useLinkStore((s) => s.categories);
 
-  const handleDelete = () => {
-    if (!deletingItem) return;
-    if (deletingItem.type === 'link') {
-      deleteLink(deletingItem.id);
-      addToast('Link deleted', 'success');
-    } else {
-      deleteCategory(deletingItem.id);
-      addToast('Category and its links deleted', 'success');
-    }
-    setDeletingItem(null);
-  };
+  const handleDeleteLink = useCallback((link: Link) => {
+    const snapshot = getSnapshot();
+    deleteLink(link.id);
+    addToast(`"${link.title}" deleted`, 'undo', {
+      undoAction: () => restoreSnapshot(snapshot),
+      duration: 5000,
+    });
+  }, [getSnapshot, deleteLink, addToast, restoreSnapshot]);
+
+  const handleDeleteCategory = useCallback((cat: Category) => {
+    const catLinks = links.filter((l) => l.categoryId === cat.id);
+    const snapshot = getSnapshot();
+    deleteCategory(cat.id);
+    addToast(
+      `"${cat.name}" and ${catLinks.length} link${catLinks.length !== 1 ? 's' : ''} deleted`,
+      'undo',
+      { undoAction: () => restoreSnapshot(snapshot), duration: 5000 },
+    );
+  }, [links, getSnapshot, deleteCategory, addToast, restoreSnapshot]);
 
   const handleAddLinkToCategory = (categoryId: string) => {
     setPreselectedCategoryId(categoryId);
     setIsAddLinkOpen(true);
   };
 
-  const linkCountForCategory = (categoryId: string) =>
-    links.filter((l) => l.categoryId === categoryId).length;
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'n': () => setIsAddLinkOpen(true),
+    'c': () => setIsAddCategoryOpen(true),
+    '/': () => searchBarRef.current?.focus(),
+  });
 
   return (
     <>
@@ -79,7 +90,7 @@ export function HomePage() {
             </span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <SearchBar ref={searchBarRef} value={searchQuery} onChange={setSearchQuery} />
             <ThemeToggle />
             <Button onClick={() => setIsAddLinkOpen(true)} size="sm">
               + Add Link
@@ -98,13 +109,9 @@ export function HomePage() {
           searchQuery={searchQuery}
           onClearSearch={() => setSearchQuery('')}
           onEditLink={setEditingLink}
-          onDeleteLink={(link) =>
-            setDeletingItem({ type: 'link', id: link.id, name: link.title })
-          }
+          onDeleteLink={handleDeleteLink}
           onEditCategory={setEditingCategory}
-          onDeleteCategory={(cat) =>
-            setDeletingItem({ type: 'category', id: cat.id, name: cat.name })
-          }
+          onDeleteCategory={handleDeleteCategory}
           onAddLinkToCategory={handleAddLinkToCategory}
           onAddCategory={() => setIsAddCategoryOpen(true)}
         />
@@ -135,20 +142,6 @@ export function HomePage() {
           isOpen={!!editingCategory}
           onClose={() => setEditingCategory(null)}
           category={editingCategory}
-        />
-      )}
-      {deletingItem && (
-        <DeleteConfirm
-          isOpen={!!deletingItem}
-          onClose={() => setDeletingItem(null)}
-          onConfirm={handleDelete}
-          itemName={deletingItem.name}
-          itemType={deletingItem.type}
-          linkCount={
-            deletingItem.type === 'category'
-              ? linkCountForCategory(deletingItem.id)
-              : 0
-          }
         />
       )}
 

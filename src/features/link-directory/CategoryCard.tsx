@@ -15,6 +15,7 @@ interface CategoryCardProps {
   onDeleteCategory: (category: Category) => void;
   onAddLink: (categoryId: string) => void;
   isDragging?: boolean;
+  searchQuery?: string;
   dragHandleProps?: {
     listeners: Record<string, unknown> | undefined;
     attributes: Record<string, unknown>;
@@ -31,17 +32,21 @@ export function CategoryCard({
   onDeleteCategory,
   onAddLink,
   isDragging = false,
+  searchQuery,
   dragHandleProps,
   renderLinks,
 }: CategoryCardProps) {
   return (
     <motion.div
       variants={staggerItem}
-      whileHover={isDragging ? undefined : cardHover}
-      className="bg-[var(--bg-card)] border-2 rounded-xl overflow-hidden"
+      whileHover={isDragging ? undefined : {
+        ...cardHover,
+        boxShadow: `6px 6px 0px ${category.color}, 0 12px 32px -4px rgba(0,0,0,0.18)`,
+      }}
+      className="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-card-secondary)] border-2 rounded-xl overflow-hidden transition-shadow"
       style={{
         borderColor: category.color,
-        boxShadow: `4px 4px 0px ${category.color}`,
+        boxShadow: `4px 4px 0px ${category.color}, 0 8px 24px -4px rgba(0,0,0,0.12)`,
       }}
     >
       {/* Header */}
@@ -87,19 +92,16 @@ export function CategoryCard({
       {/* Links */}
       <div className="p-3">
         {links.length === 0 ? (
-          <motion.p
-            animate={{ opacity: [0.4, 0.7, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-center text-sm text-[var(--text-secondary)] py-4"
-          >
-            No links yet — click + to add
-          </motion.p>
+          <div className="py-4 text-center">
+            <span className="text-2xl">🔗</span>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">No links yet</p>
+          </div>
         ) : renderLinks ? (
           renderLinks(links, category.color)
         ) : (
           <div className="flex flex-col gap-2">
-            <AnimatePresence>
-              {links.map((link) => (
+            <AnimatePresence mode="popLayout">
+              {links.map((link, index) => (
                 <LinkItem
                   key={link.id}
                   link={link}
@@ -107,6 +109,8 @@ export function CategoryCard({
                   onEdit={() => onEditLink(link)}
                   onDelete={() => onDeleteLink(link)}
                   isDragging={isDragging}
+                  searchQuery={searchQuery}
+                  index={index}
                 />
               ))}
             </AnimatePresence>

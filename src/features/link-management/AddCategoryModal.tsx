@@ -61,6 +61,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Research Papers"
           error={errors.name}
+          autoFocus
         />
         <div>
           <label className="block text-sm font-bold text-[var(--text-primary)] mb-1">Emoji</label>

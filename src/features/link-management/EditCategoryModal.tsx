@@ -60,6 +60,7 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
           onChange={(e) => setName(e.target.value)}
           placeholder="Category name"
           error={errors.name}
+          autoFocus
         />
         <div>
           <label className="block text-sm font-bold text-[var(--text-primary)] mb-1">Emoji</label>

@@ -1,6 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { staggerItemCapped, popOut } from '@/animations/variants';
+import { LinkFavicon } from '@/components/ui/LinkFavicon';
+import { HighlightText } from '@/components/ui/HighlightText';
 import type { Link } from '@/types';
 
 interface LinkItemProps {
@@ -9,14 +12,17 @@ interface LinkItemProps {
   onEdit: () => void;
   onDelete: () => void;
   isDragging?: boolean;
+  searchQuery?: string;
+  index?: number;
 }
 
-export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = false }: LinkItemProps) {
+export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = false, searchQuery, index = 0 }: LinkItemProps) {
+  const stagger = staggerItemCapped(index);
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, scale: 0.8 }}
+      initial={stagger.initial}
+      animate={stagger.animate}
+      exit={popOut.exit}
       whileHover={isDragging ? undefined : { scale: 1.02 }}
       className="group relative flex items-center justify-between px-3 py-2.5 rounded-lg border-2 transition-colors"
       style={{
@@ -30,12 +36,15 @@ export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = fal
         rel="noopener noreferrer"
         className="flex-1 min-w-0"
       >
-        <span className="text-sm font-semibold text-[var(--text-primary)] truncate block">
-          {link.title}
+        <span className="flex items-center gap-2">
+          <LinkFavicon url={link.url} />
+          <span className="text-sm font-semibold text-[var(--text-primary)] truncate">
+            <HighlightText text={link.title} query={searchQuery ?? ''} />
+          </span>
         </span>
         {link.description && (
           <span className="text-xs text-[var(--text-secondary)] truncate block">
-            {link.description}
+            <HighlightText text={link.description} query={searchQuery ?? ''} />
           </span>
         )}
       </a>

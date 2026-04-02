@@ -257,4 +257,61 @@ describe('useLinkStore', () => {
       expect(links[1].order).toBe(1);
     });
   });
+
+  describe('snapshot and restore', () => {
+    it('getSnapshot returns a deep copy of current state', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'Test', emoji: '📝', color: '#fff', order: 0, createdAt: 1 },
+        ],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'Link', url: 'https://example.com', order: 0, createdAt: 1 },
+        ],
+      });
+
+      const snapshot = useLinkStore.getState().getSnapshot();
+      expect(snapshot.categories).toHaveLength(1);
+      expect(snapshot.links).toHaveLength(1);
+      expect(snapshot.categories).not.toBe(useLinkStore.getState().categories);
+      expect(snapshot.links).not.toBe(useLinkStore.getState().links);
+    });
+
+    it('restoreSnapshot overwrites current state', () => {
+      useLinkStore.setState({
+        categories: [],
+        links: [],
+      });
+
+      const snapshot = {
+        categories: [
+          { id: 'c1', name: 'Restored', emoji: '🔄', color: '#000', order: 0, createdAt: 1 },
+        ],
+        links: [
+          { id: 'l1', categoryId: 'c1', title: 'Restored Link', url: 'https://restored.com', order: 0, createdAt: 1 },
+        ],
+      };
+
+      useLinkStore.getState().restoreSnapshot(snapshot);
+      expect(useLinkStore.getState().categories).toHaveLength(1);
+      expect(useLinkStore.getState().categories[0].name).toBe('Restored');
+      expect(useLinkStore.getState().links).toHaveLength(1);
+      expect(useLinkStore.getState().links[0].title).toBe('Restored Link');
+    });
+
+    it('snapshot is independent of store mutations', () => {
+      useLinkStore.setState({
+        categories: [
+          { id: 'c1', name: 'Before', emoji: '📝', color: '#fff', order: 0, createdAt: 1 },
+        ],
+        links: [],
+      });
+
+      const snapshot = useLinkStore.getState().getSnapshot();
+      useLinkStore.getState().deleteCategory('c1');
+
+      expect(useLinkStore.getState().categories).toHaveLength(0);
+      expect(snapshot.categories).toHaveLength(1);
+      expect(snapshot.categories[0].name).toBe('Before');
+    });
+  });
 });

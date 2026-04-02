@@ -43,3 +43,29 @@ export const cardHover = {
   rotate: 0.5,
   transition: springGentle,
 };
+
+export const popOut = {
+  initial: { scale: 1, opacity: 1 },
+  exit: { scale: 0.8, opacity: 0, transition: { duration: 0.2 } },
+};
+
+export const springSmooth = {
+  type: 'spring' as const,
+  stiffness: 300,
+  damping: 30,
+};
+
+// Stagger with max delay cap to prevent long waits on large lists
+export const staggerItemCapped = (index: number, cap = 8) => ({
+  initial: { scale: 0.8, opacity: 0, y: 20 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    y: 0,
+    transition: {
+      ...springBouncy,
+      delay: Math.min(index, cap) * 0.06,
+    },
+  },
+  exit: { scale: 0.8, opacity: 0, transition: { duration: 0.2 } },
+});

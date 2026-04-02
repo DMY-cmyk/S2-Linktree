@@ -1,6 +1,8 @@
 'use client';
 
 import { SortableCategoryGrid } from '@/features/card-ordering/SortableCategoryGrid';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { RichEmptyState } from '@/components/ui/RichEmptyState';
 import type { Category, Link } from '@/types';
 import type { FilteredResult } from '@/hooks/useFilteredLinks';
 
@@ -16,6 +18,7 @@ interface CategoryGridProps {
   onDeleteCategory: (category: Category) => void;
   onAddLinkToCategory: (categoryId: string) => void;
   onAddCategory: () => void;
+  loading?: boolean;
 }
 
 export function CategoryGrid({
@@ -30,34 +33,39 @@ export function CategoryGrid({
   onDeleteCategory,
   onAddLinkToCategory,
   onAddCategory,
+  loading,
 }: CategoryGridProps) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
   if (results.length === 0 && searchQuery) {
     return (
-      <div className="text-center py-16">
-        <p className="text-lg font-bold text-[var(--text-secondary)]">
-          No links match &ldquo;{searchQuery}&rdquo;
-        </p>
-        <button
-          onClick={onClearSearch}
-          className="mt-4 text-sm font-bold text-[#78d6ff] hover:underline cursor-pointer"
-        >
-          Clear search
-        </button>
-      </div>
+      <RichEmptyState
+        emoji="🔍"
+        title="No results found"
+        description={`No links or categories match "${searchQuery}"`}
+        actionLabel="Clear search"
+        onAction={onClearSearch}
+      />
     );
   }
 
   if (results.length === 0) {
     return (
-      <div className="text-center py-16">
-        <p className="text-lg font-bold text-[var(--text-secondary)]">No categories yet</p>
-        <button
-          onClick={onAddCategory}
-          className="mt-4 text-sm font-bold text-[#a8ff78] hover:underline cursor-pointer"
-        >
-          Create your first category
-        </button>
-      </div>
+      <RichEmptyState
+        emoji="📚"
+        title="No categories yet"
+        description="Create your first category to start organizing your links"
+        actionLabel="Create Category"
+        onAction={onAddCategory}
+      />
     );
   }
 
