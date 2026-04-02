@@ -1,6 +1,6 @@
 # S2-Linktree
 
-> **Neo-Brutalism Academic Resource Hub** — A Linktree-style app for organizing Master's degree resources by category, featuring a WebGL 3D animated background and full drag-and-drop reordering.
+> **Neo-Brutalism Academic Resource Hub** — A Linktree-style app for organizing Master's degree resources by category, featuring a WebGL 3D animated background, animated aurora gradient, and full drag-and-drop reordering.
 
 🔗 **Live Demo:** [s2-linktree.vercel.app](https://s2-linktree.vercel.app)
 
@@ -8,7 +8,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-![Three.js](https://img.shields.io/badge/Three.js-r176-black?logo=three.js)
+![Three.js](https://img.shields.io/badge/Three.js-r183-black?logo=three.js)
 
 ---
 
@@ -18,17 +18,41 @@
 
 - **Category Management** — Create, edit, and delete resource categories with custom emojis and colors
 - **Link Management** — Add, edit, and delete links within categories with auto-title fetching
-- **Search & Filter** — Real-time debounced search across link titles, URLs, and category names
+- **Search & Filter** — Real-time debounced search across link titles, URLs, and category names with keyboard shortcut (`/`)
 - **Dark / Light Theme** — Toggle with flash-free SSR hydration and localStorage persistence
 
 ### V2 — 3D Background & Drag-and-Drop
 
-- **WebGL 3D Animated Background** — Six organic, distorted 3D blobs rendered with React Three Fiber and drei's `MeshDistortMaterial` for GPU-accelerated vertex displacement. Features a 3-light rig (ambient + key + rim) for visible surface curvature, slow 3D rotation, Bloom post-processing, and mouse-driven camera parallax. Theme-adaptive lighting (brighter in dark mode, subtler in light). Automatically disabled for users who prefer reduced motion.
+- **WebGL 3D Animated Background** — Organic, distorted 3D blobs rendered with React Three Fiber and drei's `MeshDistortMaterial` for GPU-accelerated vertex displacement. Features a 3-light rig (ambient + key + rim) and mouse-driven camera parallax. Theme-adaptive lighting (brighter in dark mode, subtler in light). Automatically disabled for users who prefer reduced motion.
 - **Drag-and-Drop Reordering** — Powered by @dnd-kit:
   - **Category reorder** — Drag categories by their handle to rearrange the grid
   - **Link reorder** — Drag links within a category to reorder them
   - **Cross-category moves** — Drag a link from one category and drop it into another (target card highlights with a glow ring)
 - **Neo-Brutalism Drag Animations** — Lift/settle transitions with scale and shadow effects matching the design system
+
+### V3 — Visual Polish & Performance
+
+- **Performance Optimizations**
+  - Adaptive device capability detection with WebGL GPU renderer checks
+  - Reduced sphere geometry segments and blob count for faster rendering
+  - Removed Bloom post-processing to cut GPU overhead
+  - Lower distortion and animation speed on materials
+  - CSS fade-in transition (600ms) on canvas mount to eliminate visual pop-in
+- **3D Blob Visual Polish**
+  - Emissive glow and translucency (opacity 0.7) for lava-lamp aesthetic
+  - Depth-spread blob positions (Z: -2 to -9) for parallax depth
+  - Dual-sine organic floating motion (primary wave + secondary harmonic)
+- **Animated Aurora Gradient Background**
+  - 12-second cycling aurora gradient behind the 3D blobs
+  - Dark theme: purple → teal → magenta
+  - Light theme: peach → mint → lavender
+- **Enhanced UX**
+  - Undo toast for link/category deletions
+  - Keyboard shortcuts (`/` to focus search, `Esc` to close modals)
+  - Skeleton loading states with shimmer animation
+  - Rich empty states with contextual actions
+  - Link favicons via Google Favicon API
+  - Highlight matching text in search results
 
 ### Design & UX
 
@@ -43,7 +67,7 @@
 |-------|-----------|
 | Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
 | UI | [React 19](https://react.dev/) + [Tailwind CSS v4](https://tailwindcss.com/) |
-| 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/drei](https://github.com/pmndrs/drei) + [@react-three/postprocessing](https://github.com/pmndrs/react-postprocessing) |
+| 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/drei](https://github.com/pmndrs/drei) |
 | Drag & Drop | [@dnd-kit](https://dndkit.com/) (core, sortable, utilities) |
 | State | [Zustand 5](https://zustand.docs.pmnd.rs/) with `persist` middleware |
 | Animations | [Framer Motion 12](https://motion.dev/) |
@@ -84,7 +108,7 @@ npm start
 ### Run Tests
 
 ```bash
-npm test           # Single run (39 tests)
+npm test           # Single run (71 tests)
 npm run test:watch # Watch mode
 ```
 
@@ -100,17 +124,22 @@ src/
 │   ├── Modal.tsx
 │   ├── ThemeToggle.tsx
 │   ├── Toast.tsx
+│   ├── UndoToast.tsx              # Undo action toast for deletions
 │   ├── EmojiPicker.tsx
-│   └── DragHandle.tsx          # 6-dot grip handle for drag interactions
+│   ├── DragHandle.tsx             # 6-dot grip handle for drag interactions
+│   ├── HighlightText.tsx          # Search term highlight in results
+│   ├── LinkFavicon.tsx            # Google Favicon API integration
+│   ├── RichEmptyState.tsx         # Contextual empty state with actions
+│   └── SkeletonCard.tsx           # Shimmer loading placeholder
 ├── features/
 │   ├── home/                   # HomePage orchestrator + HeroSection
 │   ├── link-directory/         # CategoryCard, CategoryGrid, LinkItem
 │   ├── link-management/        # Add/Edit/Delete modals for links & categories
 │   ├── search/                 # SearchBar with debounce
 │   ├── background-effects/     # WebGL 3D animated background
-│   │   ├── AnimatedBackground.tsx   # Canvas wrapper with Suspense + reduced-motion fallback
-│   │   ├── BlobScene.tsx            # 6 blobs, Bloom, camera parallax, theme detection
-│   │   ├── FloatingBlob.tsx         # Organic 3D blob with MeshDistortMaterial + rotation
+│   │   ├── AnimatedBackground.tsx   # Canvas wrapper with Suspense, fade-in, reduced-motion fallback
+│   │   ├── BlobScene.tsx            # 4 blobs, camera parallax, theme-adaptive lighting
+│   │   ├── FloatingBlob.tsx         # Organic 3D blob with emissive glow, transparency, dual-sine motion
 │   │   └── useMouseParallax.ts      # Normalized mouse coordinate hook
 │   └── card-ordering/          # Drag-and-drop reordering system
 │       ├── SortableCategoryGrid.tsx  # DndContext wrapper + DragOverlay
@@ -119,7 +148,10 @@ src/
 │       ├── SortableLinkItem.tsx      # Sortable link wrapper
 │       ├── DragOverlayContent.tsx    # Category/link drag preview
 │       └── useCategoryDnd.ts        # Sensors + drag event handlers
-├── hooks/                      # useFilteredLinks (search + filter logic)
+├── hooks/                      # Custom hooks
+│   ├── useDeviceCapability.ts       # GPU-aware adaptive quality detection
+│   ├── useFilteredLinks.ts          # Search + filter logic
+│   └── useKeyboardShortcuts.ts      # Global keyboard shortcuts
 ├── lib/                        # Utils, constants, color palette
 ├── store/                      # Zustand stores (links + toasts)
 └── types/                      # TypeScript type definitions
@@ -129,12 +161,14 @@ src/
 
 The app uses a **Neo-Brutalism** aesthetic:
 
-- **Bold 3px borders** with hard box shadows
+- **Bold 3px borders** with hard box shadows and depth layers
 - **Bright accent palette:** `#a8ff78` · `#78d6ff` · `#ff78a8` · `#ffd078` · `#d078ff` · `#78ffd0` · `#ff6b6b` · `#78a8ff`
 - **Dark & light themes** via CSS custom properties on `[data-theme]`
+- **Animated aurora gradient** — 12s cycling background (purple/teal/magenta dark, peach/mint/lavender light)
 - **Stagger animations** on category cards and links
 - **Drag feedback** — Cards lift with scale + shadow on grab, settle smoothly on drop
-- **3D background** — Organic distorted blobs with 3-light rig, specular highlights, rim lighting, and Bloom glow, adapting to current theme
+- **3D background** — Organic emissive blobs with translucency, depth-spread positioning, and dual-sine motion
+- **Skeleton loading** — Shimmer animation placeholders during content load
 
 ## 📝 License
 
