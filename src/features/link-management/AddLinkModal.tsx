@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
-import { extractTitleFromUrl } from '@/lib/utils';
+import { extractTitleFromUrl, isValidUrl } from '@/lib/utils';
 
 interface AddLinkModalProps {
   isOpen: boolean;
@@ -26,6 +26,7 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
   const [categoryId, setCategoryId] = useState(preselectedCategoryId ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [titleTouched, setTitleTouched] = useState(false);
+  const [urlError, setUrlError] = useState('');
 
   // Sync preselectedCategoryId when modal re-opens with new category
   useEffect(() => {
@@ -60,6 +61,10 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (url && !isValidUrl(url)) {
+      setUrlError('Please enter a valid URL');
+      return;
+    }
     if (!validate()) return;
 
     // Check for duplicate URL in same category
@@ -91,6 +96,7 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
     setCategoryId(preselectedCategoryId ?? '');
     setErrors({});
     setTitleTouched(false);
+    setUrlError('');
     onClose();
   };
 
@@ -103,13 +109,17 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
           onChange={(e) => { setTitleTouched(true); setTitle(e.target.value); }}
           placeholder="e.g. TOEFL Practice Test #3"
           error={errors.title}
+          autoFocus
         />
         <Input
           label="URL"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => { setUrl(e.target.value); setUrlError(''); }}
+          onBlur={() => {
+            if (url && !isValidUrl(url)) setUrlError('Please enter a valid URL');
+          }}
           placeholder="https://example.com"
-          error={errors.url}
+          error={urlError || errors.url}
         />
         <Input
           label="Description (optional)"

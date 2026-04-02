@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
+import { isValidUrl } from '@/lib/utils';
 import type { Link } from '@/types';
 
 interface EditLinkModalProps {
@@ -25,6 +26,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
   const [description, setDescription] = useState(link.description ?? '');
   const [categoryId, setCategoryId] = useState(link.categoryId);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [urlError, setUrlError] = useState('');
 
   useEffect(() => {
     setTitle(link.title);
@@ -32,6 +34,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
     setDescription(link.description ?? '');
     setCategoryId(link.categoryId);
     setErrors({});
+    setUrlError('');
   }, [link]);
 
   const validate = () => {
@@ -52,6 +55,10 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (url && !isValidUrl(url)) {
+      setUrlError('Please enter a valid URL');
+      return;
+    }
     if (!validate()) return;
 
     // Check for duplicate URL in same category (skip self)
@@ -83,13 +90,17 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Link title"
           error={errors.title}
+          autoFocus
         />
         <Input
           label="URL"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => { setUrl(e.target.value); setUrlError(''); }}
+          onBlur={() => {
+            if (url && !isValidUrl(url)) setUrlError('Please enter a valid URL');
+          }}
           placeholder="https://example.com"
-          error={errors.url}
+          error={urlError || errors.url}
         />
         <Input
           label="Description (optional)"
