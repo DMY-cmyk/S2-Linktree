@@ -16,11 +16,13 @@ interface LinkStore {
   reorderCategories: (activeId: string, overId: string) => void;
   reorderLinks: (categoryId: string, activeId: string, overId: string) => void;
   moveLinkToCategory: (linkId: string, targetCategoryId: string, insertIndex: number) => void;
+  getSnapshot: () => { categories: Category[]; links: Link[] };
+  restoreSnapshot: (snapshot: { categories: Category[]; links: Link[] }) => void;
 }
 
 export const useLinkStore = create<LinkStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       categories: DEFAULT_CATEGORIES,
       links: DEFAULT_LINKS,
 
@@ -114,6 +116,14 @@ export const useLinkStore = create<LinkStore>()(
           return { links: [...otherLinks, ...sourceLinks, ...reorderedTarget] };
         });
       },
+
+      getSnapshot: () => ({
+        categories: JSON.parse(JSON.stringify(get().categories)),
+        links: JSON.parse(JSON.stringify(get().links)),
+      }),
+
+      restoreSnapshot: (snapshot) =>
+        set({ categories: snapshot.categories, links: snapshot.links }),
     }),
     {
       name: 's2-linktree-store',
