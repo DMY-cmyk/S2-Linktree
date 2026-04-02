@@ -1,6 +1,7 @@
 'use client';
 
 import { SortableCategoryGrid } from '@/features/card-ordering/SortableCategoryGrid';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import type { Category, Link } from '@/types';
 import type { FilteredResult } from '@/hooks/useFilteredLinks';
 
@@ -16,6 +17,7 @@ interface CategoryGridProps {
   onDeleteCategory: (category: Category) => void;
   onAddLinkToCategory: (categoryId: string) => void;
   onAddCategory: () => void;
+  loading?: boolean;
 }
 
 export function CategoryGrid({
@@ -30,7 +32,18 @@ export function CategoryGrid({
   onDeleteCategory,
   onAddLinkToCategory,
   onAddCategory,
+  loading,
 }: CategoryGridProps) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
   if (results.length === 0 && searchQuery) {
     return (
       <div className="text-center py-16">
