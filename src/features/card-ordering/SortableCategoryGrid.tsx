@@ -87,6 +87,7 @@ export function SortableCategoryGrid({
                     <CategoryCard
                       category={result.category}
                       links={result.links}
+                      searchQuery={searchQuery}
                       onEditLink={onEditLink}
                       onDeleteLink={onDeleteLink}
                       onEditCategory={onEditCategory}
@@ -102,6 +103,7 @@ export function SortableCategoryGrid({
                           isDragging={isDragging}
                           onEditLink={onEditLink}
                           onDeleteLink={onDeleteLink}
+                          searchQuery={searchQuery}
                         />
                       )}
                     />

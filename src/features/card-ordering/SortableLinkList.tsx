@@ -17,6 +17,7 @@ interface SortableLinkListProps {
   isDragging: boolean;
   onEditLink: (link: Link) => void;
   onDeleteLink: (link: Link) => void;
+  searchQuery?: string;
 }
 
 export function SortableLinkList({
@@ -26,6 +27,7 @@ export function SortableLinkList({
   isDragging,
   onEditLink,
   onDeleteLink,
+  searchQuery,
 }: SortableLinkListProps) {
   const { setNodeRef } = useDroppable({ id: `droppable-${categoryId}` });
 
@@ -35,7 +37,7 @@ export function SortableLinkList({
       strategy={verticalListSortingStrategy}
     >
       <div ref={setNodeRef} className="flex flex-col gap-2">
-        {links.map((link) => (
+        {links.map((link, index) => (
           <SortableLinkItem key={link.id} link={link}>
             {({ setNodeRef: itemRef, style, isDragging: isItemDragging, listeners, attributes }) => (
               <div ref={itemRef} style={style} className="flex items-center gap-1">
@@ -47,6 +49,8 @@ export function SortableLinkList({
                     onEdit={() => onEditLink(link)}
                     onDelete={() => onDeleteLink(link)}
                     isDragging={isDragging || isItemDragging}
+                    searchQuery={searchQuery}
+                    index={index}
                   />
                 </div>
               </div>
