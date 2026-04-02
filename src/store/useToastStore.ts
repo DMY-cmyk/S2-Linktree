@@ -1,21 +1,34 @@
 import { create } from 'zustand';
-import type { Toast, ToastVariant } from '@/types';
+import type { Toast } from '@/types';
 import { generateId } from '@/lib/utils';
+
+interface AddToastOptions {
+  undoAction?: () => void;
+  duration?: number;
+}
 
 interface ToastStore {
   toasts: Toast[];
-  addToast: (message: string, variant: ToastVariant) => void;
+  addToast: (message: string, variant: Toast['variant'], options?: AddToastOptions) => void;
   removeToast: (id: string) => void;
 }
 
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
-  addToast: (message, variant) => {
+  addToast: (message, variant, options) => {
     const id = generateId();
-    set((state) => ({ toasts: [...state.toasts, { id, message, variant }] }));
+    const duration = options?.duration ?? 4000;
+    const toast: Toast = {
+      id,
+      message,
+      variant,
+      undoAction: options?.undoAction,
+      duration,
+    };
+    set((state) => ({ toasts: [...state.toasts, toast] }));
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
-    }, 4000);
+    }, duration);
   },
   removeToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),

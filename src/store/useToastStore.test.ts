@@ -35,4 +35,29 @@ describe('useToastStore', () => {
     expect(useToastStore.getState().toasts).toHaveLength(1);
     expect(useToastStore.getState().toasts[0].message).toBe('B');
   });
+
+  it('adds an undo toast with undoAction and custom duration', () => {
+    const undoFn = vi.fn();
+    useToastStore.getState().addToast('Deleted', 'undo', {
+      undoAction: undoFn,
+      duration: 5000,
+    });
+
+    const toast = useToastStore.getState().toasts[0];
+    expect(toast.variant).toBe('undo');
+    expect(toast.undoAction).toBe(undoFn);
+    expect(toast.duration).toBe(5000);
+  });
+
+  it('auto-removes undo toast after custom duration', () => {
+    useToastStore.getState().addToast('Deleted', 'undo', {
+      undoAction: () => {},
+      duration: 5000,
+    });
+
+    vi.advanceTimersByTime(4999);
+    expect(useToastStore.getState().toasts).toHaveLength(1);
+    vi.advanceTimersByTime(1);
+    expect(useToastStore.getState().toasts).toHaveLength(0);
+  });
 });
