@@ -16,6 +16,7 @@ import { useFilteredLinks } from '@/hooks/useFilteredLinks';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { generateConstantsSource } from '@/lib/exportToCode';
 import type { Link, Category } from '@/types';
 import dynamic from 'next/dynamic';
 
@@ -67,6 +68,16 @@ export function HomePage() {
     setIsAddLinkOpen(true);
   };
 
+  const handleExportToCode = useCallback(async () => {
+    try {
+      const source = generateConstantsSource(categories, links);
+      await navigator.clipboard.writeText(source);
+      addToast('Copied to clipboard — paste into src/lib/constants.ts', 'success');
+    } catch {
+      addToast('Failed to copy — check browser clipboard permissions', 'error');
+    }
+  }, [categories, links, addToast]);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     'n': () => setIsAddLinkOpen(true),
@@ -92,6 +103,9 @@ export function HomePage() {
           <div className="flex items-center gap-3 flex-wrap">
             <SearchBar ref={searchBarRef} value={searchQuery} onChange={setSearchQuery} />
             <ThemeToggle />
+            <Button variant="secondary" size="sm" onClick={handleExportToCode}>
+              Export to Code
+            </Button>
             <Button onClick={() => setIsAddLinkOpen(true)} size="sm">
               + Add Link
             </Button>
