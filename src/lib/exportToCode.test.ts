@@ -7,6 +7,7 @@ describe('generateConstantsSource', () => {
     const output = generateConstantsSource([], []);
     expect(output).toContain('DEFAULT_CATEGORIES');
     expect(output).toContain('DEFAULT_LINKS');
+    expect(output).toContain("import type { Category, Link } from '@/types'");
   });
 
   it('renders empty arrays as []', () => {

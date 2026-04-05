@@ -25,6 +25,7 @@ export function generateConstantsSource(categories: Category[], links: Link[]): 
 
   return [
     '// Paste this into src/lib/constants.ts — replace DEFAULT_CATEGORIES and DEFAULT_LINKS',
+    "import type { Category, Link } from '@/types';",
     '',
     `export const DEFAULT_CATEGORIES: Category[] = ${catsBlock};`,
     '',
