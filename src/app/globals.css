@@ -11,6 +11,13 @@
   --accent: #7c3aed;
   --shimmer-base: #e0e0e8;
   --shimmer-highlight: #f0f0f8;
+  --color-success: #a8ff78;
+  --color-on-success: #222222;
+  --color-danger: #ff6b6b;
+  --color-on-danger: #ffffff;
+  --color-warning: #ffd078;
+  --color-on-warning: #222222;
+  --color-on-accent: #ffffff;
   --aurora-1: #ffd6a5;
   --aurora-2: #a8edea;
   --aurora-3: #d4b4f4;
@@ -27,6 +34,13 @@
   --accent: #a855f7;
   --shimmer-base: #2a2a3e;
   --shimmer-highlight: #3a3a4e;
+  --color-success: #86efac;
+  --color-on-success: #222222;
+  --color-danger: #fca5a5;
+  --color-on-danger: #222222;
+  --color-warning: #fde68a;
+  --color-on-warning: #222222;
+  --color-on-accent: #ffffff;
   --aurora-1: #7c3aed;
   --aurora-2: #06b6d4;
   --aurora-3: #db2777;
@@ -60,6 +74,34 @@ input:focus {
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: var(--text-secondary);
   border-radius: 4px;
+}
+
+/* Global focus-visible ring */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Skip-to-content link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 8px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-on-accent);
+  background: var(--accent);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px var(--border-color);
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.skip-to-content:focus {
+  top: 12px;
 }
 
 /* Z-index layering for 3D background */
