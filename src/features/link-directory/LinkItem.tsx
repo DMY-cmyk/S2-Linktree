@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Pencil, Trash2, ArrowRight } from 'lucide-react';
 import { staggerItemCapped, popOut } from '@/animations/variants';
 import { LinkFavicon } from '@/components/ui/LinkFavicon';
 import { HighlightText } from '@/components/ui/HighlightText';
@@ -48,23 +49,23 @@ export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = fal
           </span>
         )}
       </a>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+      <div className="flex items-center gap-1 opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity ml-2">
         <button
           onClick={(e) => { e.preventDefault(); onEdit(); }}
-          className="text-xs p-1 hover:bg-[var(--bg-primary)] rounded cursor-pointer"
-          title="Edit"
+          className="text-xs p-1 hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-secondary)]"
+          aria-label={`Edit ${link.title}`}
         >
-          ✏️
+          <Pencil size={14} strokeWidth={2.5} />
         </button>
         <button
           onClick={(e) => { e.preventDefault(); onDelete(); }}
-          className="text-xs p-1 hover:bg-[var(--bg-primary)] rounded cursor-pointer"
-          title="Delete"
+          className="text-xs p-1 hover:bg-[var(--bg-primary)] rounded cursor-pointer text-[var(--text-secondary)]"
+          aria-label={`Delete ${link.title}`}
         >
-          🗑️
+          <Trash2 size={14} strokeWidth={2.5} />
         </button>
       </div>
-      <span className="text-[var(--text-secondary)] text-sm ml-1">→</span>
+      <span className="text-[var(--text-secondary)] ml-1"><ArrowRight size={14} strokeWidth={2.5} /></span>
     </motion.div>
   );
 }
