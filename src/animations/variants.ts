@@ -69,3 +69,51 @@ export const staggerItemCapped = (index: number, cap = 8) => ({
   },
   exit: { scale: 0.8, opacity: 0, transition: { duration: 0.2 } },
 });
+
+// --- Reduced motion variants ---
+// Decorative: disabled completely (instant opacity)
+export const reducedPopIn = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.01 },
+};
+
+export const reducedStaggerContainer = {
+  initial: {},
+  animate: {},
+};
+
+export const reducedStaggerItem = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.01 } },
+  exit: { opacity: 0, transition: { duration: 0.01 } },
+};
+
+export const reducedCardHover = {};
+
+export const reducedPopOut = {
+  initial: { opacity: 1 },
+  exit: { opacity: 0, transition: { duration: 0.01 } },
+};
+
+export const reducedStaggerItemCapped = (_index: number, _cap = 8) => ({
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.01 } },
+  exit: { opacity: 0, transition: { duration: 0.01 } },
+});
+
+// Functional: softened to 150ms linear opacity fade
+export const reducedModalOverlay = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.15, ease: 'linear' as const },
+};
+
+export const reducedModalContent = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.15, ease: 'linear' as const },
+};
