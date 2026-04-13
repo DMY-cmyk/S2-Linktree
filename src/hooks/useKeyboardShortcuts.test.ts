@@ -56,4 +56,12 @@ describe('useKeyboardShortcuts', () => {
 
     expect(preventSpy).toHaveBeenCalled();
   });
+
+  it('does not fire for bare single-letter keys when no handler registered', () => {
+    const handler = vi.fn();
+    renderHook(() => useKeyboardShortcuts({ 'mod+k': handler }));
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'n' }));
+    expect(handler).not.toHaveBeenCalled();
+  });
 });

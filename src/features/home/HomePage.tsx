@@ -80,9 +80,7 @@ export function HomePage() {
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    'n': () => setIsAddLinkOpen(true),
-    'c': () => setIsAddCategoryOpen(true),
-    '/': () => searchBarRef.current?.focus(),
+    'mod+k': () => searchBarRef.current?.focus(),
   });
 
   return (
@@ -93,7 +91,7 @@ export function HomePage() {
       <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b-2 border-[var(--border-color)] px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="bg-[#a8ff78] text-[#222] font-black text-lg px-3 py-1 border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)]">
+            <div className="bg-[var(--color-success)] text-[var(--color-on-success)] font-black text-lg px-3 py-1 border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)]">
               S2
             </div>
             <span className="font-bold text-[var(--text-primary)] hidden sm:block">
