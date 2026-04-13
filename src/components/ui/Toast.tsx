@@ -1,19 +1,29 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToastStore } from '@/store/useToastStore';
 import { cn } from '@/lib/utils';
 import { UndoToast } from './UndoToast';
 
 const variantStyles = {
-  success: 'bg-[#a8ff78] text-[#222] border-[var(--border-color)]',
-  warning: 'bg-[#ffd078] text-[#222] border-[var(--border-color)]',
-  error: 'bg-[#ff6b6b] text-white border-[var(--border-color)]',
+  success: 'bg-[var(--color-success)] text-[var(--color-on-success)] border-[var(--border-color)]',
+  warning: 'bg-[var(--color-warning)] text-[var(--color-on-warning)] border-[var(--border-color)]',
+  error: 'bg-[var(--color-danger)] text-[var(--color-on-danger)] border-[var(--border-color)]',
 };
 
 export function ToastContainer() {
   const toasts = useToastStore((s) => s.toasts);
   const removeToast = useToastStore((s) => s.removeToast);
+
+  useEffect(() => {
+    const liveRegion = document.getElementById('toast-live-region');
+    if (liveRegion && toasts.length > 0) {
+      liveRegion.textContent = toasts[toasts.length - 1].message;
+    } else if (liveRegion) {
+      liveRegion.textContent = '';
+    }
+  }, [toasts]);
 
   return (
     <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
