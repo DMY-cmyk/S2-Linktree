@@ -27,7 +27,7 @@ export function DeleteConfirm({
           Are you sure you want to delete <strong>&ldquo;{itemName}&rdquo;</strong>?
         </p>
         {itemType === 'category' && linkCount > 0 && (
-          <p className="text-sm font-bold text-red-500">
+          <p className="text-sm font-bold text-[var(--color-danger)]">
             ⚠️ This will also delete {linkCount} {linkCount === 1 ? 'link' : 'links'} inside it.
           </p>
         )}
@@ -37,7 +37,7 @@ export function DeleteConfirm({
           </Button>
           <Button
             onClick={onConfirm}
-            className="!bg-red-500 !text-white !shadow-[3px_3px_0px_var(--border-color)] hover:!translate-x-[1px] hover:!translate-y-[1px] hover:!shadow-[2px_2px_0px_var(--border-color)]"
+            className="!bg-[var(--color-danger)] !text-[var(--color-on-danger)] !shadow-[3px_3px_0px_var(--border-color)] hover:!translate-x-[1px] hover:!translate-y-[1px] hover:!shadow-[2px_2px_0px_var(--border-color)]"
           >
             Delete
           </Button>
