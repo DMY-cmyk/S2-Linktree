@@ -65,7 +65,7 @@ describe('useMouseParallax', () => {
     vi.advanceTimersByTime(51);
 
     // Now this one should register
-    fireEvent(window, new MouseEvent('mousemove', { clientX: 500, clientY: 500 }));
+    fireEvent(window, new MouseEvent('mousemove', { clientX: 600, clientY: 600 }));
 
     // The position should have changed after throttle window
     expect(result.current.x).not.toBe(0);
