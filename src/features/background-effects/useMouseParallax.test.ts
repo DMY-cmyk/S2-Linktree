@@ -58,9 +58,6 @@ describe('useMouseParallax', () => {
     fireEvent(window, new MouseEvent('mousemove', { clientX: 200, clientY: 200 }));
     fireEvent(window, new MouseEvent('mousemove', { clientX: 300, clientY: 300 }));
 
-    // Only first should register immediately
-    const firstX = result.current.x;
-
     // Advance past throttle window
     vi.advanceTimersByTime(51);
 

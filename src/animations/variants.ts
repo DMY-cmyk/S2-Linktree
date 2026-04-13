@@ -97,6 +97,7 @@ export const reducedPopOut = {
   exit: { opacity: 0, transition: { duration: 0.01 } },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const reducedStaggerItemCapped = (_index: number, _cap = 8) => ({
   initial: { opacity: 0 },
   animate: { opacity: 1, transition: { duration: 0.01 } },

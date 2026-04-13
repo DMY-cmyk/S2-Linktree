@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   reducedPopIn,
   reducedStaggerItem,
-  reducedModalOverlay,
   reducedModalContent,
   reducedCardHover,
   reducedStaggerItemCapped,
