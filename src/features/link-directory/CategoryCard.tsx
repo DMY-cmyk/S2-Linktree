@@ -1,9 +1,11 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import { staggerItem, cardHover } from '@/animations/variants';
 import { LinkItem } from './LinkItem';
 import { DragHandle } from '@/components/ui/DragHandle';
+import { CATEGORY_COLORS } from '@/lib/constants';
 import type { Category, Link } from '@/types';
 
 interface CategoryCardProps {
@@ -36,6 +38,9 @@ export function CategoryCard({
   dragHandleProps,
   renderLinks,
 }: CategoryCardProps) {
+  const colorEntry = CATEGORY_COLORS.find(c => c.hex === category.color);
+  const textColor = colorEntry?.textColor ?? '#222222';
+
   return (
     <motion.div
       variants={staggerItem}
@@ -64,27 +69,33 @@ export function CategoryCard({
               attributes={dragHandleProps.attributes}
             />
           )}
-          <span className="font-extrabold text-[#222] text-sm">
+          <span className="font-extrabold text-sm" style={{ color: textColor }}>
             {category.emoji} {category.name}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#222] opacity-60">
+          <span
+            className="text-xs opacity-60"
+            style={{ color: textColor }}
+            aria-label={`${links.length} ${links.length === 1 ? 'link' : 'links'}`}
+          >
             {links.length} {links.length === 1 ? 'link' : 'links'}
           </span>
           <button
             onClick={() => onEditCategory(category)}
-            className="text-[#222] opacity-60 hover:opacity-100 text-xs cursor-pointer"
-            title="Edit category"
+            className="opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer p-1 rounded"
+            aria-label={`Edit ${category.name}`}
+            style={{ color: textColor }}
           >
-            ✏️
+            <Pencil size={14} strokeWidth={2.5} />
           </button>
           <button
             onClick={() => onDeleteCategory(category)}
-            className="text-[#222] opacity-60 hover:opacity-100 text-xs cursor-pointer"
-            title="Delete category"
+            className="opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer p-1 rounded"
+            aria-label={`Delete ${category.name}`}
+            style={{ color: textColor }}
           >
-            🗑️
+            <Trash2 size={14} strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -118,9 +129,9 @@ export function CategoryCard({
         )}
         <button
           onClick={() => onAddLink(category.id)}
-          className="w-full mt-2 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-2 border-dashed border-[var(--text-secondary)] hover:border-[var(--border-color)] rounded-lg transition-colors cursor-pointer"
+          className="w-full mt-2 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-2 border-dashed border-[var(--text-secondary)] hover:border-[var(--border-color)] rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1"
         >
-          + Add link
+          <Plus size={14} strokeWidth={2.5} /> Add link
         </button>
       </div>
     </motion.div>
