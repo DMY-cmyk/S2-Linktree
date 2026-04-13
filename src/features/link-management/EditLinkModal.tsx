@@ -45,7 +45,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
       try {
         new URL(url);
       } catch {
-        errs.url = 'Must be a valid URL (include https://)';
+        errs.url = 'Please enter a valid URL (e.g. https://example.com)';
       }
     }
     if (!categoryId) errs.categoryId = 'Select a category';
@@ -56,7 +56,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (url && !isValidUrl(url)) {
-      setUrlError('Please enter a valid URL');
+      setUrlError('Please enter a valid URL (e.g. https://example.com)');
       return;
     }
     if (!validate()) return;
@@ -97,7 +97,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
           value={url}
           onChange={(e) => { setUrl(e.target.value); setUrlError(''); }}
           onBlur={() => {
-            if (url && !isValidUrl(url)) setUrlError('Please enter a valid URL');
+            if (url && !isValidUrl(url)) setUrlError('Please enter a valid URL (e.g. https://example.com)');
           }}
           placeholder="https://example.com"
           error={urlError || errors.url}
@@ -115,7 +115,7 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full px-3 py-2 text-sm font-medium bg-[var(--bg-card)] text-[var(--text-primary)] border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)] focus:outline-none focus:shadow-[3px_3px_0px_var(--border-color)]"
+            className="w-full px-3 py-2 text-sm font-medium bg-[var(--bg-card)] text-[var(--text-primary)] border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)] focus:shadow-[3px_3px_0px_var(--border-color)]"
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
