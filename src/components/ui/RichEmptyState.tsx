@@ -22,7 +22,7 @@ export function RichEmptyState({
       transition={{ duration: 0.3 }}
       className="flex flex-col items-center justify-center py-12 text-center"
     >
-      <span className="text-5xl mb-3" role="img">{emoji}</span>
+      <span className="text-5xl mb-3" role="img" aria-label={emoji}>{emoji}</span>
       <h3 className="text-lg font-bold text-[var(--text-primary)] mb-1">{title}</h3>
       <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-xs">
         {description}

@@ -49,4 +49,10 @@ describe('RichEmptyState', () => {
     );
     expect(screen.queryByRole('button')).toBeNull();
   });
+
+  it('emoji span has aria-label', () => {
+    render(<RichEmptyState emoji="📚" title="T" description="D" />);
+    const emojiEl = screen.getByRole('img');
+    expect(emojiEl.getAttribute('aria-label')).toBe('📚');
+  });
 });

@@ -21,4 +21,10 @@ describe('LinkFavicon', () => {
     render(<LinkFavicon url="not-a-url" />);
     expect(screen.getByText('🌐')).toBeDefined();
   });
+
+  it('img alt text includes the domain name', () => {
+    const { container } = render(<LinkFavicon url="https://example.com/page" />);
+    const img = container.querySelector('img');
+    expect(img?.getAttribute('alt')).toBe('Favicon for example.com');
+  });
 });

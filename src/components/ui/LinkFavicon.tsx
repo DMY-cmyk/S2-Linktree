@@ -24,7 +24,7 @@ export function LinkFavicon({ url, size = 16 }: LinkFaviconProps) {
   return (
     <img
       src={`https://www.google.com/s2/favicons?domain=${domain}&sz=${size * 2}`}
-      alt="favicon"
+      alt={`Favicon for ${domain}`}
       width={size}
       height={size}
       className="inline-block shrink-0 rounded-sm"
