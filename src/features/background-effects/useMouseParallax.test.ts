@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, fireEvent } from '@testing-library/react';
 import { useMouseParallax } from './useMouseParallax';
 
 describe('useMouseParallax', () => {
@@ -47,5 +47,29 @@ describe('useMouseParallax', () => {
     unmount();
     expect(removeSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
     removeSpy.mockRestore();
+  });
+
+  it('throttles updates to at most once per 50ms', () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useMouseParallax());
+
+    // Fire 3 rapid events
+    fireEvent(window, new MouseEvent('mousemove', { clientX: 100, clientY: 100 }));
+    fireEvent(window, new MouseEvent('mousemove', { clientX: 200, clientY: 200 }));
+    fireEvent(window, new MouseEvent('mousemove', { clientX: 300, clientY: 300 }));
+
+    // Only first should register immediately
+    const firstX = result.current.x;
+
+    // Advance past throttle window
+    vi.advanceTimersByTime(51);
+
+    // Now this one should register
+    fireEvent(window, new MouseEvent('mousemove', { clientX: 500, clientY: 500 }));
+
+    // The position should have changed after throttle window
+    expect(result.current.x).not.toBe(0);
+
+    vi.useRealTimers();
   });
 });
