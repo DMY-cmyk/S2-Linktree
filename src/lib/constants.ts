@@ -1,14 +1,14 @@
 import type { Category, Link } from '@/types';
 
 export const CATEGORY_COLORS = [
-  '#a8ff78', // Lime
-  '#78d6ff', // Cyan
-  '#ffb3f0', // Pink
-  '#ffd078', // Orange
-  '#c4b5fd', // Lavender
-  '#fca5a5', // Coral
-  '#86efac', // Mint
-  '#fde68a', // Yellow
+  { hex: '#a8ff78', textColor: '#222222' },  // Lime
+  { hex: '#78d6ff', textColor: '#222222' },  // Cyan
+  { hex: '#ffb3f0', textColor: '#222222' },  // Pink
+  { hex: '#ffd078', textColor: '#222222' },  // Orange
+  { hex: '#c4b5fd', textColor: '#222222' },  // Lavender
+  { hex: '#fca5a5', textColor: '#222222' },  // Coral
+  { hex: '#86efac', textColor: '#222222' },  // Mint
+  { hex: '#fde68a', textColor: '#222222' },  // Yellow
 ] as const;
 
 export const EMOJI_OPTIONS = [

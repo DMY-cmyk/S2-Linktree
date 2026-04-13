@@ -71,14 +71,14 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
           <div className="flex flex-wrap gap-2">
             {CATEGORY_COLORS.map((c) => (
               <button
-                key={c}
+                key={c.hex}
                 type="button"
-                onClick={() => setColor(c)}
+                onClick={() => setColor(c.hex)}
                 className="w-8 h-8 rounded-lg border-2 transition-transform cursor-pointer"
                 style={{
-                  backgroundColor: c,
-                  borderColor: color === c ? 'var(--border-color)' : 'transparent',
-                  transform: color === c ? 'scale(1.2)' : 'scale(1)',
+                  backgroundColor: c.hex,
+                  borderColor: color === c.hex ? 'var(--border-color)' : 'transparent',
+                  transform: color === c.hex ? 'scale(1.2)' : 'scale(1)',
                 }}
               />
             ))}

@@ -21,7 +21,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
 
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('📁');
-  const [color, setColor] = useState<string>(CATEGORY_COLORS[0]);
+  const [color, setColor] = useState<string>(CATEGORY_COLORS[0].hex);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -47,7 +47,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
   const handleClose = () => {
     setName('');
     setEmoji('📁');
-    setColor(CATEGORY_COLORS[0]);
+    setColor(CATEGORY_COLORS[0].hex);
     setErrors({});
     onClose();
   };
@@ -72,14 +72,14 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
           <div className="flex flex-wrap gap-2">
             {CATEGORY_COLORS.map((c) => (
               <button
-                key={c}
+                key={c.hex}
                 type="button"
-                onClick={() => setColor(c)}
+                onClick={() => setColor(c.hex)}
                 className="w-8 h-8 rounded-lg border-2 transition-transform cursor-pointer"
                 style={{
-                  backgroundColor: c,
-                  borderColor: color === c ? 'var(--border-color)' : 'transparent',
-                  transform: color === c ? 'scale(1.2)' : 'scale(1)',
+                  backgroundColor: c.hex,
+                  borderColor: color === c.hex ? 'var(--border-color)' : 'transparent',
+                  transform: color === c.hex ? 'scale(1.2)' : 'scale(1)',
                 }}
               />
             ))}
