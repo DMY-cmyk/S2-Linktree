@@ -60,4 +60,17 @@ describe('useToastStore', () => {
     vi.advanceTimersByTime(1);
     expect(useToastStore.getState().toasts).toHaveLength(0);
   });
+
+  it('caps visible toasts at 3, auto-dismissing the oldest', () => {
+    useToastStore.getState().addToast('A', 'success');
+    useToastStore.getState().addToast('B', 'success');
+    useToastStore.getState().addToast('C', 'success');
+    useToastStore.getState().addToast('D', 'success');
+
+    const toasts = useToastStore.getState().toasts;
+    expect(toasts).toHaveLength(3);
+    expect(toasts[0].message).toBe('B');
+    expect(toasts[1].message).toBe('C');
+    expect(toasts[2].message).toBe('D');
+  });
 });

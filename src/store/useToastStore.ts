@@ -25,7 +25,13 @@ export const useToastStore = create<ToastStore>((set) => ({
       undoAction: options?.undoAction,
       duration,
     };
-    set((state) => ({ toasts: [...state.toasts, toast] }));
+    set((state) => {
+      const updated = [...state.toasts, toast];
+      if (updated.length > 3) {
+        return { toasts: updated.slice(updated.length - 3) };
+      }
+      return { toasts: updated };
+    });
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, duration);
