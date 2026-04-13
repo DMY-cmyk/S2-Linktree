@@ -18,7 +18,7 @@ export function DragOverlayContent({ type, category, link }: DragOverlayContentP
         initial={false}
         animate={DRAG_CARD_LIFT}
         transition={DRAG_TRANSITION}
-        className="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-card-secondary)] border-2 rounded-xl px-4 py-3 w-64"
+        className="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-card-secondary)] border-2 rounded-xl px-4 py-3 max-w-[16rem] w-[80vw]"
         style={{
           borderColor: category.color,
           boxShadow: `6px 6px 0px ${category.color}, 0 12px 32px -4px rgba(0,0,0,0.2)`,
@@ -37,7 +37,7 @@ export function DragOverlayContent({ type, category, link }: DragOverlayContentP
         initial={false}
         animate={DRAG_LINK_LIFT}
         transition={DRAG_TRANSITION}
-        className="bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-lg px-3 py-2 w-56"
+        className="bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-lg px-3 py-2 max-w-[14rem] w-[75vw]"
         style={{
           boxShadow: '3px 3px 0px var(--border-color)',
         }}
