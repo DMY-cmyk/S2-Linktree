@@ -18,8 +18,8 @@
 
 - **Category Management** — Create, edit, and delete resource categories with custom emojis and colors
 - **Link Management** — Add, edit, and delete links within categories with auto-title fetching
-- **Search & Filter** — Real-time debounced search across link titles, URLs, and category names with keyboard shortcut (`/`)
-- **Dark / Light Theme** — Toggle with flash-free SSR hydration and localStorage persistence
+- **Search & Filter** — Real-time debounced search across link titles, URLs, and category names with keyboard shortcut (`Ctrl+K` / `Cmd+K`)
+- **Dark / Light / System Theme** — Three-state toggle (light, dark, system) with flash-free SSR hydration, `prefers-color-scheme` auto-detection, and localStorage persistence
 
 ### V2 — 3D Background & Drag-and-Drop
 
@@ -48,18 +48,36 @@
   - Light theme: peach → mint → lavender
 - **Enhanced UX**
   - Undo toast for link/category deletions
-  - Keyboard shortcuts (`/` to focus search, `Esc` to close modals)
+  - Keyboard shortcuts (`Ctrl+K` / `Cmd+K` to focus search, `Esc` to close modals)
   - Skeleton loading states with shimmer animation
   - Rich empty states with contextual actions
   - Link favicons via Google Favicon API
   - Highlight matching text in search results
 
+### V4 — UI/UX Polish & Accessibility
+
+- **Lucide SVG Icon System** — Replaced all functional emoji icons (edit, delete, search, close, add) with [Lucide React](https://lucide.dev/) SVG icons at 2.5px stroke width matching the Neo-Brutalist aesthetic
+- **Semantic Design Tokens** — CSS custom properties for success/danger/warning/accent colors with auto-contrast `--color-on-*` text pairs across both themes
+- **Comprehensive Accessibility**
+  - Global `:focus-visible` accent outline on all interactive elements
+  - Skip-to-content link for keyboard navigation
+  - Native `<dialog>` modal with built-in focus trapping and Escape handling
+  - `aria-invalid` + `aria-describedby` on form inputs with error icon
+  - `role="radiogroup"` with `aria-checked` on emoji picker
+  - Persistent `aria-live` region for screen reader toast announcements
+  - Descriptive `aria-label` on all action buttons, favicons, and link counts
+- **Mobile UX** — Edit/delete actions always visible at 60% opacity (no hover-only), 32px minimum touch targets
+- **Search Enhancements** — Lucide Search/X icons, clear button, two-stage Escape (clear text then blur), platform-aware shortcut hint
+- **Performance** — 50ms mouse parallax throttle, max 3 toast stack, responsive drag overlay sizing for narrow viewports
+- **Reduced Motion** — Two-tier `prefers-reduced-motion` support: decorative animations disabled, functional animations softened to 150ms opacity fades
+- **Category Header Contrast** — Pre-computed text colors per category background for WCAG-compliant readability
+
 ### Design & UX
 
 - **Neo-Brutalism Design** — Bold borders, hard shadows, bright accent colors, and playful animations
 - **Fully Client-Side** — All data stored in `localStorage` via Zustand — no backend required
-- **Accessible** — ARIA-compliant modals with focus management and keyboard navigation
-- **Responsive** — Works on desktop and mobile with touch-friendly drag sensors
+- **Accessible** — Native dialog focus trapping, ARIA labels, radiogroup semantics, skip-to-content, screen reader announcements
+- **Responsive** — Works on desktop and mobile with touch-friendly drag sensors and always-visible action buttons
 
 ## 🛠️ Tech Stack
 
@@ -70,6 +88,7 @@
 | 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/drei](https://github.com/pmndrs/drei) |
 | Drag & Drop | [@dnd-kit](https://dndkit.com/) (core, sortable, utilities) |
 | State | [Zustand 5](https://zustand.docs.pmnd.rs/) with `persist` middleware |
+| Icons | [Lucide React](https://lucide.dev/) |
 | Animations | [Framer Motion 12](https://motion.dev/) |
 | IDs | [nanoid](https://github.com/ai/nanoid) |
 | Testing | [Vitest 4](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) |
@@ -108,7 +127,7 @@ npm start
 ### Run Tests
 
 ```bash
-npm test           # Single run (71 tests)
+npm test           # Single run (154 tests)
 npm run test:watch # Watch mode
 ```
 
@@ -161,9 +180,10 @@ src/
 
 The app uses a **Neo-Brutalism** aesthetic:
 
-- **Bold 3px borders** with hard box shadows and depth layers
-- **Bright accent palette:** `#a8ff78` · `#78d6ff` · `#ff78a8` · `#ffd078` · `#d078ff` · `#78ffd0` · `#ff6b6b` · `#78a8ff`
-- **Dark & light themes** via CSS custom properties on `[data-theme]`
+- **Bold 2px borders** with hard box shadows and depth layers
+- **Semantic color tokens:** success, danger, warning, accent — each with auto-contrast `on-*` text pairs
+- **Three-state theming** (light / dark / system) via CSS custom properties on `[data-theme]`
+- **Lucide SVG icons** at 2.5px stroke width for all UI controls
 - **Animated aurora gradient** — 12s cycling background (purple/teal/magenta dark, peach/mint/lavender light)
 - **Stagger animations** on category cards and links
 - **Drag feedback** — Cards lift with scale + shadow on grab, settle smoothly on drop
