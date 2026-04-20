@@ -37,4 +37,5 @@ export const DEFAULT_LINKS: Link[] = [
   { id: 'x-z4Stn7ZHfpMxkEBxpR_', categoryId: 'cat-toefl', title: 'Speaking Partner (Toefl Prediction)', url: 'https://speakingpartner.id/test-toefl-online-kampung-inggris', description: 'Buat Persiapan Toefl sebelum aslinya', order: 1, createdAt: 1 },
   { id: 'pmX1Us1g9JhI99fVrq9RS', categoryId: 'cat-prev-years', title: 'Akt. 24 - Seadanya', url: 'https://drive.google.com/drive/folders/10nM5usogoVpkhZWa8o851P9PBtUJSFj1?usp=sharing', description: 'Materi + Soal Taun Lalu Akt. 24', order: 0, createdAt: 1 },
   { id: 'f4S4cWYu_4vSGuojDevIG', categoryId: 'cat-sem-1', title: 'Pelaporan Keuangan Korporat', url: 'https://classroom.google.com/c/ODQ4NTk2NDkxNTQw', description: 'Google Classroom', order: 0, createdAt: 1 },
+  { id: 'ZfDpFVdtO2W9TChRM6yni', categoryId: 'cat-sem-1', title: 'PKK - Ringkasan dsb', url: 'https://github.com/DMY-cmyk/pkk-course-materials', description: 'Ringkasan, Study Guide, Exercise, Review Sheet', order: 1, createdAt: 1 },
 ];
