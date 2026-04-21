@@ -38,4 +38,6 @@ export const DEFAULT_LINKS: Link[] = [
   { id: 'pmX1Us1g9JhI99fVrq9RS', categoryId: 'cat-prev-years', title: 'Akt. 24 - Seadanya', url: 'https://drive.google.com/drive/folders/10nM5usogoVpkhZWa8o851P9PBtUJSFj1?usp=sharing', description: 'Materi + Soal Taun Lalu Akt. 24', order: 0, createdAt: 1 },
   { id: 'f4S4cWYu_4vSGuojDevIG', categoryId: 'cat-sem-1', title: 'Pelaporan Keuangan Korporat', url: 'https://classroom.google.com/c/ODQ4NTk2NDkxNTQw', description: 'Google Classroom', order: 0, createdAt: 1 },
   { id: 'ZfDpFVdtO2W9TChRM6yni', categoryId: 'cat-sem-1', title: 'PKK - Ringkasan dsb', url: 'https://github.com/DMY-cmyk/pkk-course-materials', description: 'Ringkasan, Study Guide, Exercise, Review Sheet', order: 1, createdAt: 1 },
+  { id: '3wKnrjshuKLGPWO5tiuTA', categoryId: 'cat-sem-1', title: 'Managemen Stratejik - Ringkasan dsb', url: 'https://github.com/DMY-cmyk/msk304-course-materials', description: 'Ringkasan, Study Guide, Exercise, Review Sheet', order: 2, createdAt: 1 },
+  { id: 'kEzCYtAZqP2xs3kWEpOBh', categoryId: 'cat-sem-1', title: 'ALK - Ringkasan dsb', url: 'https://github.com/DMY-cmyk/FSA-ALK301', description: 'Ringkasan, Study Guide, Exercise, Review Sheet', order: 3, createdAt: 1 },
 ];
