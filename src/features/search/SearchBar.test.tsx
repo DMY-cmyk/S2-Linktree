@@ -30,11 +30,12 @@ describe('SearchBar', () => {
     expect(document.getElementById('main-content')).toBeTruthy();
   });
 
-  it('placeholder includes keyboard shortcut hint', () => {
+  it('keyboard shortcut hint is visible (badge or placeholder)', () => {
     render(<SearchBar value="" onChange={() => {}} />);
     const input = screen.getByRole('textbox');
     const placeholder = input.getAttribute('placeholder') ?? '';
-    expect(placeholder).toMatch(/Ctrl\+K|⌘K/);
+    const badgeText = screen.queryByText(/Ctrl\+K|⌘K/)?.textContent ?? '';
+    expect(`${placeholder} ${badgeText}`).toMatch(/Ctrl\+K|⌘K/);
   });
 
   it('first Escape clears text when input has value', () => {
@@ -53,5 +54,10 @@ describe('SearchBar', () => {
     expect(document.activeElement).toBe(input);
     fireEvent.keyDown(input, { key: 'Escape' });
     expect(document.activeElement).not.toBe(input);
+  });
+
+  it('renders ⌘K kbd badge in polished mode', () => {
+    render(<SearchBar value="" onChange={() => {}} />);
+    expect(screen.getByText('⌘K')).toBeInTheDocument();
   });
 });
