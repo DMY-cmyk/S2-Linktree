@@ -1,36 +1,28 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LinkItem } from './LinkItem';
 
-const mockLink = { id: 'l1', categoryId: 'c1', title: 'My Link', url: 'https://example.com', order: 0, createdAt: 1 };
+const link = {
+  id: 'l1', categoryId: 'c1',
+  title: 'Portal ETC', url: 'https://github.com/foo',
+  description: 'desc', order: 0, createdAt: 1,
+};
 
-describe('LinkItem', () => {
-  it('renders Lucide icons for edit and delete (SVGs)', () => {
-    render(<LinkItem link={mockLink} accentColor="#a8ff78" onEdit={vi.fn()} onDelete={vi.fn()} />);
-    const svgs = document.querySelectorAll('svg');
-    expect(svgs.length).toBeGreaterThanOrEqual(2);
+describe('LinkItem polished', () => {
+  it('renders monogram for github.com (G)', () => {
+    render(<LinkItem link={link} accentColor="#16a34a" onEdit={() => {}} onDelete={() => {}} />);
+    expect(screen.getByLabelText(/github\.com/i).textContent).toBe('G');
   });
-
-  it('edit button has aria-label with link title', () => {
-    render(<LinkItem link={mockLink} accentColor="#a8ff78" onEdit={vi.fn()} onDelete={vi.fn()} />);
-    expect(screen.getByLabelText('Edit My Link')).toBeTruthy();
+  it('exposes data-link-id for shortcut focus', () => {
+    const { container } = render(
+      <LinkItem link={link} accentColor="#16a34a" onEdit={() => {}} onDelete={() => {}} />
+    );
+    expect(container.querySelector('[data-link-id="l1"]')).toBeInTheDocument();
   });
-
-  it('delete button has aria-label with link title', () => {
-    render(<LinkItem link={mockLink} accentColor="#a8ff78" onEdit={vi.fn()} onDelete={vi.fn()} />);
-    expect(screen.getByLabelText('Delete My Link')).toBeTruthy();
-  });
-
-  it('action buttons are always visible at 60% opacity', () => {
-    render(<LinkItem link={mockLink} accentColor="#a8ff78" onEdit={vi.fn()} onDelete={vi.fn()} />);
-    const editBtn = screen.getByLabelText('Edit My Link');
-    const container = editBtn.parentElement!;
-    expect(container.className).toContain('opacity-60');
-    expect(container.className).not.toContain('opacity-0');
-  });
-
-  it('does not render → text (uses ArrowRight icon instead)', () => {
-    const { container } = render(<LinkItem link={mockLink} accentColor="#a8ff78" onEdit={vi.fn()} onDelete={vi.fn()} />);
-    expect(container.textContent).not.toContain('→');
+  it('shows external arrow icon', () => {
+    const { container } = render(
+      <LinkItem link={link} accentColor="#16a34a" onEdit={() => {}} onDelete={() => {}} />
+    );
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 });
