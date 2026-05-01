@@ -13,6 +13,7 @@ export function useKeyboardShortcuts(shortcuts: ShortcutMap) {
       const isInput =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
         target.isContentEditable;
 
       if (isInput) {
@@ -21,6 +22,9 @@ export function useKeyboardShortcuts(shortcuts: ShortcutMap) {
         }
         return;
       }
+
+      // Suppress shortcuts while any dialog is open
+      if (typeof document !== 'undefined' && document.querySelector('dialog[open]')) return;
 
       const parts: string[] = [];
       if (e.ctrlKey || e.metaKey) parts.push('mod');

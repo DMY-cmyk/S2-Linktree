@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -21,21 +21,14 @@ export function EditLinkModal({ isOpen, onClose, link }: EditLinkModalProps) {
   const updateLink = useLinkStore((s) => s.updateLink);
   const { addToast } = useToastStore();
 
+  // Lazy-init from prop. Parent (HomePage) renders with key={link.id}
+  // so this component remounts (fresh state) when editing a different link.
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
   const [description, setDescription] = useState(link.description ?? '');
   const [categoryId, setCategoryId] = useState(link.categoryId);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [urlError, setUrlError] = useState('');
-
-  useEffect(() => {
-    setTitle(link.title);
-    setUrl(link.url);
-    setDescription(link.description ?? '');
-    setCategoryId(link.categoryId);
-    setErrors({});
-    setUrlError('');
-  }, [link]);
 
   const validate = () => {
     const errs: Record<string, string> = {};

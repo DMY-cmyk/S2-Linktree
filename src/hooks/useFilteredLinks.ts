@@ -23,7 +23,9 @@ export function useFilteredLinks(searchQuery: string): FilteredResult[] {
 
         if (!query) return { category, links: catLinks };
 
-        const categoryNameMatches = category.name.toLowerCase().includes(query);
+        const categoryNameMatches =
+          category.name.toLowerCase().includes(query) ||
+          category.tag.toLowerCase().includes(query);
         const filteredLinks = categoryNameMatches
           ? catLinks
           : catLinks.filter(

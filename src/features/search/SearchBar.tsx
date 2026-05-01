@@ -12,13 +12,6 @@ export interface SearchBarRef {
   focus: () => void;
 }
 
-function getShortcutHint(): string {
-  if (typeof navigator === 'undefined') return 'Ctrl+K';
-  const isMac = (navigator as any).userAgentData?.platform === 'macOS' ||
-    /Mac/.test(navigator.platform ?? '');
-  return isMac ? '⌘K' : 'Ctrl+K';
-}
-
 export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function SearchBar({ value, onChange }, ref) {
   const [localValue, setLocalValue] = useState(value);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -28,13 +21,8 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
     focus: () => inputRef.current?.focus(),
   }));
 
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
-
-  useEffect(() => {
-    return () => clearTimeout(timerRef.current);
-  }, []);
+  useEffect(() => { setLocalValue(value); }, [value]);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
@@ -63,9 +51,13 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
   };
 
   return (
-    <div className="relative" id="main-content">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none">
-        <Search size={16} strokeWidth={2.5} />
+    <div id="main-content" style={{ position: 'relative', width: 320 }}>
+      <span style={{
+        position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+        color: 'var(--text-3)', display: 'grid', placeItems: 'center',
+        pointerEvents: 'none',
+      }}>
+        <Search size={14} strokeWidth={1.75} />
       </span>
       <input
         ref={inputRef}
@@ -73,19 +65,39 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
         value={localValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={`Search resources... (${getShortcutHint()})`}
+        placeholder="Search resources, links, courses…"
         aria-label="Search resources"
-        className="w-40 md:w-60 pl-9 pr-8 py-1.5 text-sm font-medium bg-[var(--bg-card)] text-[var(--text-primary)] border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)] placeholder:text-[var(--text-secondary)] focus:shadow-[3px_3px_0px_var(--border-color)] transition-shadow"
+        style={{
+          width: '100%', height: 34, padding: '0 56px 0 34px',
+          background: 'var(--surface)',
+          border: '1.5px solid var(--border-soft)', borderRadius: 8,
+          color: 'var(--text)', fontSize: 13, fontFamily: 'inherit',
+          outline: 'none',
+        }}
       />
       {localValue && (
         <button
+          type="button"
           onClick={handleClear}
           aria-label="Clear search"
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center bg-[var(--border-color)] text-[var(--bg-card)] rounded cursor-pointer"
+          style={{
+            position: 'absolute', right: 36, top: '50%', transform: 'translateY(-50%)',
+            width: 18, height: 18, display: 'grid', placeItems: 'center',
+            background: 'var(--surface-2)', color: 'var(--text-2)',
+            border: '1px solid var(--border-soft)', borderRadius: 4,
+            cursor: 'pointer',
+          }}
         >
-          <X size={12} strokeWidth={2.5} />
+          <X size={11} strokeWidth={1.75} />
         </button>
       )}
+      <span className="mono" style={{
+        position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+        display: 'inline-flex', alignItems: 'center', gap: 2,
+        fontSize: 10, fontWeight: 600, color: 'var(--text-3)',
+        background: 'var(--surface-2)', border: '1px solid var(--border-soft)',
+        padding: '2px 6px', borderRadius: 4,
+      }}>⌘K</span>
     </div>
   );
 });

@@ -18,18 +18,18 @@ describe('lucide-react dependency', () => {
   });
 });
 
-describe('Button semantic tokens', () => {
-  it('primary variant uses --color-success token not hardcoded hex', () => {
+describe('Button polished tokens', () => {
+  it('primary variant uses --accent token not hardcoded hex', () => {
     render(<Button variant="primary">Test</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toContain('var(--color-success)');
+    expect(btn.className).toContain('var(--accent)');
     expect(btn.className).not.toContain('#a8ff78');
   });
 
-  it('danger variant uses --color-danger token not hardcoded hex', () => {
+  it('danger variant uses --danger token not hardcoded hex', () => {
     render(<Button variant="danger">Test</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toContain('var(--color-danger)');
+    expect(btn.className).toContain('var(--danger)');
     expect(btn.className).not.toContain('#ff6b6b');
   });
 });

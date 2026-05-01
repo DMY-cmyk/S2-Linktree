@@ -9,17 +9,17 @@ import {
   SortableContext,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { motion, AnimatePresence } from 'framer-motion';
-import { staggerContainer } from '@/animations/variants';
 import { SortableCategoryCard } from './SortableCategoryCard';
 import { SortableLinkList } from './SortableLinkList';
 import { DragOverlayContent } from './DragOverlayContent';
 import { CategoryCard } from '@/features/link-directory/CategoryCard';
+import { GroupHeader } from '@/features/link-directory/GroupHeader';
 import { useCategoryDnd } from './useCategoryDnd';
+import { groupByTag } from '@/hooks/useTagGroups';
 import type { Category, Link } from '@/types';
 import type { FilteredResult } from '@/hooks/useFilteredLinks';
 
-interface SortableCategoryGridProps {
+interface Props {
   results: FilteredResult[];
   allLinks: Link[];
   allCategories: Category[];
@@ -33,25 +33,17 @@ interface SortableCategoryGridProps {
 }
 
 export function SortableCategoryGrid({
-  results,
-  allLinks,
-  allCategories,
-  onEditLink,
-  onDeleteLink,
-  onEditCategory,
-  onDeleteCategory,
-  onAddLinkToCategory,
-  onAddCategory,
-  searchQuery,
-}: SortableCategoryGridProps) {
-  const {
-    sensors,
-    dndState,
-    isDragging,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  } = useCategoryDnd(allCategories, allLinks);
+  results, allLinks, allCategories,
+  onEditLink, onDeleteLink, onEditCategory, onDeleteCategory,
+  onAddLinkToCategory, onAddCategory, searchQuery,
+}: Props) {
+  const { sensors, dndState, isDragging, handleDragStart, handleDragOver, handleDragEnd } =
+    useCategoryDnd(allCategories, allLinks);
+
+  // Build tag groups from the visible (filtered) results
+  const groups = groupByTag(results.map((r) => r.category));
+  const linksByCat = new Map(results.map((r) => [r.category.id, r.links] as const));
+  const sortableIds = results.map((r) => r.category.id);
 
   return (
     <DndContext
@@ -61,69 +53,81 @@ export function SortableCategoryGrid({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext
-        items={results.map((r) => r.category.id)}
-        strategy={rectSortingStrategy}
-      >
-        <motion.div
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-        >
-          <AnimatePresence>
-            {results.map((result) => (
-              <SortableCategoryCard key={result.category.id} category={result.category}>
-                {({ setNodeRef, style, isDragging: isCatDragging, listeners, attributes }) => (
-                  <div
-                    ref={setNodeRef}
-                    style={style}
-                    className={
-                      dndState.activeType === 'link' && dndState.overCategoryId === result.category.id
-                        ? 'ring-2 ring-[var(--text-primary)] ring-offset-2 rounded-xl transition-shadow'
-                        : 'transition-shadow'
-                    }
-                  >
-                    <CategoryCard
-                      category={result.category}
-                      links={result.links}
-                      searchQuery={searchQuery}
-                      onEditLink={onEditLink}
-                      onDeleteLink={onDeleteLink}
-                      onEditCategory={onEditCategory}
-                      onDeleteCategory={onDeleteCategory}
-                      onAddLink={onAddLinkToCategory}
-                      isDragging={isDragging || isCatDragging}
-                      dragHandleProps={{ listeners, attributes }}
-                      renderLinks={(links, accentColor) => (
-                        <SortableLinkList
-                          links={links}
-                          categoryId={result.category.id}
-                          accentColor={accentColor}
-                          isDragging={isDragging}
-                          onEditLink={onEditLink}
-                          onDeleteLink={onDeleteLink}
-                          searchQuery={searchQuery}
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-              </SortableCategoryCard>
-            ))}
-          </AnimatePresence>
+      <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+        {groups.map((g) => (
+          <section key={g.tag} style={{ marginBottom: 8 }}>
+            <GroupHeader title={g.tag} count={g.items.length} />
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 16, paddingTop: 12,
+            }}>
+              {g.items.map((cat, idx) => (
+                <SortableCategoryCard key={cat.id} category={cat}>
+                  {({ setNodeRef, style, isDragging: isCatDragging, listeners, attributes }) => (
+                    <div
+                      ref={setNodeRef}
+                      style={style}
+                      className={
+                        dndState.activeType === 'link' && dndState.overCategoryId === cat.id
+                          ? 'ring-2 ring-[var(--accent)] ring-offset-2 rounded-xl transition-shadow'
+                          : 'transition-shadow'
+                      }
+                    >
+                      <CategoryCard
+                        category={cat}
+                        links={linksByCat.get(cat.id) ?? []}
+                        searchQuery={searchQuery}
+                        index={idx}
+                        onEditLink={onEditLink}
+                        onDeleteLink={onDeleteLink}
+                        onEditCategory={onEditCategory}
+                        onDeleteCategory={onDeleteCategory}
+                        onAddLink={onAddLinkToCategory}
+                        isDragging={isDragging || isCatDragging}
+                        dragHandleProps={{ listeners, attributes }}
+                        renderLinks={(links, accentColor) => (
+                          <SortableLinkList
+                            links={links}
+                            categoryId={cat.id}
+                            accentColor={accentColor}
+                            isDragging={isDragging}
+                            onEditLink={onEditLink}
+                            onDeleteLink={onDeleteLink}
+                            searchQuery={searchQuery}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                </SortableCategoryCard>
+              ))}
+            </div>
+          </section>
+        ))}
 
-          {!searchQuery && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              onClick={onAddCategory}
-              className="min-h-[140px] border-2 border-dashed border-[var(--text-secondary)] rounded-xl flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-color)] transition-colors cursor-pointer"
-            >
-              <span className="text-2xl">+</span>
-              <span className="text-sm font-bold">New Category</span>
-            </motion.button>
-          )}
-        </motion.div>
+        {!searchQuery && (
+          <button
+            type="button"
+            onClick={onAddCategory}
+            style={{
+              marginTop: 24,
+              minHeight: 80,
+              width: '100%',
+              border: '1.5px dashed var(--border-soft)',
+              borderRadius: 10,
+              background: 'transparent',
+              color: 'var(--text-3)',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            <span>+</span>
+            <span>New category</span>
+          </button>
+        )}
       </SortableContext>
 
       <DragOverlay>

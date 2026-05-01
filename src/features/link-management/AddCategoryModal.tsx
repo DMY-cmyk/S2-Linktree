@@ -5,9 +5,10 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { EmojiPicker } from '@/components/ui/EmojiPicker';
-import { CATEGORY_COLORS } from '@/lib/constants';
+import { CATEGORY_COLORS, CATEGORY_TAGS, DEFAULT_CATEGORY_TAG } from '@/lib/constants';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
+import type { CategoryTag } from '@/types';
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('📁');
   const [color, setColor] = useState<string>(CATEGORY_COLORS[0].hex);
+  const [tag, setTag] = useState<CategoryTag>(DEFAULT_CATEGORY_TAG);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -39,6 +41,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
       emoji,
       color,
       order: categories.length,
+      tag,
     });
     addToast('Category created!', 'success');
     handleClose();
@@ -48,6 +51,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
     setName('');
     setEmoji('📁');
     setColor(CATEGORY_COLORS[0].hex);
+    setTag(DEFAULT_CATEGORY_TAG);
     setErrors({});
     onClose();
   };
@@ -82,6 +86,24 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
                   transform: color === c.hex ? 'scale(1.2)' : 'scale(1)',
                 }}
               />
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">Tag</label>
+          <div role="radiogroup" className="flex flex-wrap gap-2">
+            {CATEGORY_TAGS.map((t) => (
+              <label key={t} className="inline-flex items-center gap-1 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="category-tag"
+                  value={t}
+                  checked={tag === t}
+                  onChange={() => setTag(t)}
+                  aria-label={t}
+                />
+                {t}
+              </label>
             ))}
           </div>
         </div>

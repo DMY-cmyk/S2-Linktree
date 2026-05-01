@@ -1,14 +1,12 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { Pencil, Trash2, Plus } from 'lucide-react';
-import { staggerItem, cardHover } from '@/animations/variants';
+import { useState } from 'react';
+import { Pencil, Trash2, Plus, BookOpen } from 'lucide-react';
 import { LinkItem } from './LinkItem';
 import { DragHandle } from '@/components/ui/DragHandle';
-import { CATEGORY_COLORS } from '@/lib/constants';
 import type { Category, Link } from '@/types';
 
-interface CategoryCardProps {
+interface Props {
   category: Category;
   links: Link[];
   onEditLink: (link: Link) => void;
@@ -23,117 +21,135 @@ interface CategoryCardProps {
     attributes: Record<string, unknown>;
   };
   renderLinks?: (links: Link[], accentColor: string) => React.ReactNode;
+  index?: number;
 }
 
 export function CategoryCard({
-  category,
-  links,
-  onEditLink,
-  onDeleteLink,
-  onEditCategory,
-  onDeleteCategory,
-  onAddLink,
-  isDragging = false,
-  searchQuery,
-  dragHandleProps,
-  renderLinks,
-}: CategoryCardProps) {
-  const colorEntry = CATEGORY_COLORS.find(c => c.hex === category.color);
-  const textColor = colorEntry?.textColor ?? '#222222';
+  category, links, onEditLink, onDeleteLink, onEditCategory, onDeleteCategory,
+  onAddLink, isDragging = false, searchQuery, dragHandleProps, renderLinks, index = 0,
+}: Props) {
+  const [hover, setHover] = useState(false);
+  const accent = category.color;
+  const headerBg = `color-mix(in srgb, ${accent} 14%, var(--surface))`;
+  const ariaLabel = `${category.name}, ${links.length} link${links.length === 1 ? '' : 's'}, press E to edit or D to delete`;
 
   return (
-    <motion.div
-      variants={staggerItem}
-      whileHover={isDragging ? undefined : {
-        ...cardHover,
-        boxShadow: `6px 6px 0px ${category.color}, 0 12px 32px -4px rgba(0,0,0,0.18)`,
-      }}
-      className="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-card-secondary)] border-2 rounded-xl overflow-hidden transition-shadow"
+    <article
+      tabIndex={0}
+      data-card-id={category.id}
+      aria-label={ariaLabel}
+      className="fade-up"
       style={{
-        borderColor: category.color,
-        boxShadow: `4px 4px 0px ${category.color}, 0 8px 24px -4px rgba(0,0,0,0.12)`,
+        ['--idx' as never]: String(index),
+        animationDelay: `calc(var(--idx) * 30ms)`,
+        position: 'relative',
+        background: 'var(--surface)',
+        border: '1.5px solid var(--border)',
+        borderRadius: 10,
+        boxShadow: hover && !isDragging ? '4px 4px 0 var(--shadow-color)' : '3px 3px 0 var(--shadow-color)',
+        transform: hover && !isDragging ? 'translate(-1px,-1px)' : 'translate(0,0)',
+        transition: 'transform 120ms ease, box-shadow 120ms ease',
+        overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
       }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
-      {/* Header */}
-      <div
-        className="px-4 py-3 flex items-center justify-between"
-        style={{
-          backgroundColor: category.color,
-          borderBottom: '2px solid var(--border-color)',
-        }}
-      >
-        <div className="flex items-center gap-1">
-          {dragHandleProps && (
-            <DragHandle
-              listeners={dragHandleProps.listeners}
-              attributes={dragHandleProps.attributes}
-            />
-          )}
-          <span className="font-extrabold text-sm" style={{ color: textColor }}>
-            {category.emoji} {category.name}
-          </span>
+      <header style={{
+        padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 10,
+        borderBottom: '1.5px solid var(--border-soft)',
+        background: headerBg,
+      }}>
+        {dragHandleProps && (
+          <DragHandle listeners={dragHandleProps.listeners} attributes={dragHandleProps.attributes} />
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: 2, background: accent,
+              border: `1px solid color-mix(in srgb, ${accent} 60%, var(--border))`,
+              flexShrink: 0,
+            }} />
+            <h3 style={{
+              margin: 0, fontSize: 15, fontWeight: 700, letterSpacing: '-0.015em',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              color: 'var(--text)',
+            }}>{category.name}</h3>
+          </div>
+          <div className="mono" style={{
+            marginTop: 3, fontSize: 10.5, color: 'var(--text-3)',
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+          }}>
+            {category.tag} · <span style={{ color: 'var(--text-2)' }}>
+              {links.length} link{links.length === 1 ? '' : 's'}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="text-xs opacity-60"
-            style={{ color: textColor }}
-            aria-label={`${links.length} ${links.length === 1 ? 'link' : 'links'}`}
-          >
-            {links.length} {links.length === 1 ? 'link' : 'links'}
-          </span>
-          <button
-            onClick={() => onEditCategory(category)}
-            className="opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer p-1 rounded"
+        <div style={{ display: 'flex', gap: 2 }}>
+          <button type="button" onClick={() => onEditCategory(category)}
             aria-label={`Edit ${category.name}`}
-            style={{ color: textColor }}
-          >
-            <Pencil size={14} strokeWidth={2.5} />
+            style={{ width: 26, height: 26, display: 'grid', placeItems: 'center',
+              background: 'transparent', border: 'none', borderRadius: 6,
+              color: 'var(--text-3)', cursor: 'pointer' }}>
+            <Pencil size={13} strokeWidth={1.75} />
           </button>
-          <button
-            onClick={() => onDeleteCategory(category)}
-            className="opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer p-1 rounded"
+          <button type="button" onClick={() => onDeleteCategory(category)}
             aria-label={`Delete ${category.name}`}
-            style={{ color: textColor }}
-          >
-            <Trash2 size={14} strokeWidth={2.5} />
+            style={{ width: 26, height: 26, display: 'grid', placeItems: 'center',
+              background: 'transparent', border: 'none', borderRadius: 6,
+              color: 'var(--text-3)', cursor: 'pointer' }}>
+            <Trash2 size={13} strokeWidth={1.75} />
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Links */}
-      <div className="p-3">
+      <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
         {links.length === 0 ? (
-          <div className="py-4 text-center">
-            <span className="text-2xl">🔗</span>
-            <p className="text-xs text-[var(--text-secondary)] mt-1">No links yet</p>
+          <div style={{
+            padding: '20px 12px', textAlign: 'center',
+            border: '1.5px dashed var(--border-soft)', borderRadius: 8,
+            background: 'var(--surface-2)',
+          }}>
+            <div style={{
+              width: 28, height: 28, margin: '0 auto 8px',
+              display: 'grid', placeItems: 'center',
+              background: 'var(--surface)', border: '1.5px solid var(--border-soft)',
+              borderRadius: 6, color: 'var(--text-3)',
+            }}><BookOpen size={14} strokeWidth={1.75} /></div>
+            <div className="mono" style={{
+              fontSize: 10.5, fontWeight: 500, color: 'var(--text-3)',
+              textTransform: 'uppercase', letterSpacing: '0.1em',
+            }}>No links yet</div>
+            <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}>
+              Drop a Classroom link or Drive folder.
+            </div>
           </div>
         ) : renderLinks ? (
-          renderLinks(links, category.color)
+          renderLinks(links, accent)
         ) : (
-          <div className="flex flex-col gap-2">
-            <AnimatePresence mode="popLayout">
-              {links.map((link, index) => (
-                <LinkItem
-                  key={link.id}
-                  link={link}
-                  accentColor={category.color}
-                  onEdit={() => onEditLink(link)}
-                  onDelete={() => onDeleteLink(link)}
-                  isDragging={isDragging}
-                  searchQuery={searchQuery}
-                  index={index}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
+          links.map((l, i) => (
+            <LinkItem key={l.id} link={l} accentColor={accent}
+              onEdit={() => onEditLink(l)} onDelete={() => onDeleteLink(l)}
+              isDragging={isDragging} searchQuery={searchQuery} index={i} />
+          ))
         )}
         <button
+          type="button"
           onClick={() => onAddLink(category.id)}
-          className="w-full mt-2 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-2 border-dashed border-[var(--text-secondary)] hover:border-[var(--border-color)] rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1"
+          aria-label="Add link"
+          style={{
+            marginTop: 4, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            background: 'transparent',
+            border: '1.5px dashed var(--border-soft)',
+            borderRadius: 8,
+            color: 'var(--text-3)', fontSize: 12, fontWeight: 500,
+            cursor: 'pointer',
+          }}
         >
-          <Plus size={14} strokeWidth={2.5} /> Add link
+          <Plus size={12} strokeWidth={1.75} /> Add link
         </button>
       </div>
-    </motion.div>
+    </article>
   );
 }

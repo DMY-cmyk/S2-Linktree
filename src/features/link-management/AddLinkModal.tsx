@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -28,20 +28,9 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
   const [titleTouched, setTitleTouched] = useState(false);
   const [urlError, setUrlError] = useState('');
 
-  // Sync preselectedCategoryId when modal re-opens with new category
-  useEffect(() => {
-    if (isOpen && preselectedCategoryId) {
-      setCategoryId(preselectedCategoryId);
-    }
-  }, [isOpen, preselectedCategoryId]);
-
-  // Auto-suggest title from URL when title hasn't been manually edited
-  useEffect(() => {
-    if (!titleTouched && url.trim()) {
-      const suggested = extractTitleFromUrl(url.trim());
-      if (suggested) setTitle(suggested);
-    }
-  }, [url, titleTouched]);
+  // Title is auto-suggested inline from URL onChange when not manually edited.
+  // Preselected category is initialized once via useState; parent uses
+  // key={preselectedCategoryId} to remount when preselected changes.
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -114,7 +103,15 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
         <Input
           label="URL"
           value={url}
-          onChange={(e) => { setUrl(e.target.value); setUrlError(''); }}
+          onChange={(e) => {
+            const next = e.target.value;
+            setUrl(next);
+            setUrlError('');
+            if (!titleTouched && next.trim()) {
+              const suggested = extractTitleFromUrl(next.trim());
+              if (suggested) setTitle(suggested);
+            }
+          }}
           onBlur={() => {
             if (url && !isValidUrl(url)) setUrlError('Please enter a valid URL (e.g. https://example.com)');
           }}

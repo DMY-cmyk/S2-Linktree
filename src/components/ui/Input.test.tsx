@@ -36,10 +36,10 @@ describe('Input accessibility', () => {
     expect(input.className).not.toContain('outline-none');
   });
 
-  it('uses --color-danger token for error border', () => {
+  it('uses --danger token for error border', () => {
     render(<Input error="Bad" />);
     const input = screen.getByRole('textbox');
-    expect(input.className).toContain('var(--color-danger)');
+    expect(input.className).toContain('var(--danger)');
     expect(input.className).not.toContain('#ff6b6b');
   });
 });

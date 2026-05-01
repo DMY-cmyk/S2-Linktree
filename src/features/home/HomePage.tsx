@@ -1,29 +1,22 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { HeroSection } from './HeroSection';
 import { CategoryGrid } from '@/features/link-directory/CategoryGrid';
-import { SearchBar } from '@/features/search/SearchBar';
 import type { SearchBarRef } from '@/features/search/SearchBar';
 import { AddLinkModal } from '@/features/link-management/AddLinkModal';
 import { EditLinkModal } from '@/features/link-management/EditLinkModal';
 import { AddCategoryModal } from '@/features/link-management/AddCategoryModal';
 import { EditCategoryModal } from '@/features/link-management/EditCategoryModal';
 import { ToastContainer } from '@/components/ui/Toast';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { Button } from '@/components/ui/Button';
+import { Header } from '@/components/ui/Header';
+import { Footer } from '@/components/ui/Footer';
+import { CssOrbs } from '@/features/background-effects/CssOrbs';
 import { useFilteredLinks } from '@/hooks/useFilteredLinks';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { generateConstantsSource } from '@/lib/exportToCode';
 import type { Link, Category } from '@/types';
-import dynamic from 'next/dynamic';
-
-const AnimatedBackground = dynamic(
-  () => import('@/features/background-effects/AnimatedBackground').then((mod) => ({ default: mod.AnimatedBackground })),
-  { ssr: false }
-);
 
 export function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +26,7 @@ export function HomePage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [preselectedCategoryId, setPreselectedCategoryId] = useState<string | undefined>();
   const searchBarRef = useRef<SearchBarRef>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const filteredResults = useFilteredLinks(searchQuery);
   const deleteLink = useLinkStore((s) => s.deleteLink);
@@ -42,6 +36,18 @@ export function HomePage() {
   const { addToast } = useToastStore();
   const links = useLinkStore((s) => s.links);
   const categories = useLinkStore((s) => s.categories);
+
+  // Sync theme state with data-theme attribute (set by ThemeToggle)
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const read = () => {
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    };
+    read();
+    const ob = new MutationObserver(read);
+    ob.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => ob.disconnect();
+  }, []);
 
   const handleDeleteLink = useCallback((link: Link) => {
     const snapshot = getSnapshot();
@@ -68,97 +74,96 @@ export function HomePage() {
     setIsAddLinkOpen(true);
   };
 
-  const handleExportToCode = useCallback(async () => {
-    try {
-      const source = generateConstantsSource(categories, links);
-      await navigator.clipboard.writeText(source);
-      addToast('Copied to clipboard — paste into src/lib/constants.ts', 'success');
-    } catch {
-      addToast('Failed to copy — check browser clipboard permissions', 'error');
-    }
-  }, [categories, links, addToast]);
-
-  // Keyboard shortcuts
   useKeyboardShortcuts({
     'mod+k': () => searchBarRef.current?.focus(),
+    e: () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return;
+      const cardEl = el.closest('[data-card-id]') as HTMLElement | null;
+      const linkEl = el.closest('[data-link-id]') as HTMLElement | null;
+      if (cardEl?.dataset.cardId) {
+        const cat = categories.find((c) => c.id === cardEl.dataset.cardId);
+        if (cat) setEditingCategory(cat);
+      } else if (linkEl?.dataset.linkId) {
+        const lnk = links.find((l) => l.id === linkEl.dataset.linkId);
+        if (lnk) setEditingLink(lnk);
+      }
+    },
+    d: () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return;
+      const cardEl = el.closest('[data-card-id]') as HTMLElement | null;
+      const linkEl = el.closest('[data-link-id]') as HTMLElement | null;
+      if (cardEl?.dataset.cardId) {
+        const cat = categories.find((c) => c.id === cardEl.dataset.cardId);
+        if (cat) handleDeleteCategory(cat);
+      } else if (linkEl?.dataset.linkId) {
+        const lnk = links.find((l) => l.id === linkEl.dataset.linkId);
+        if (lnk) handleDeleteLink(lnk);
+      }
+    },
   });
 
   return (
     <>
-      <AnimatedBackground />
-      <div className="content-layer min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b-2 border-[var(--border-color)] px-4 md:px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="bg-[var(--color-success)] text-[var(--color-on-success)] font-black text-lg px-3 py-1 border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)]">
-              S2
-            </div>
-            <span className="font-bold text-[var(--text-primary)] hidden sm:block">
-              My Academic Hub
-            </span>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <SearchBar ref={searchBarRef} value={searchQuery} onChange={setSearchQuery} />
-            <ThemeToggle />
-            <Button variant="secondary" size="sm" onClick={handleExportToCode}>
-              Export to Code
-            </Button>
-            <Button onClick={() => setIsAddLinkOpen(true)} size="sm">
-              + Add Link
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <HeroSection />
-
-      <main className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
-        <CategoryGrid
-          results={filteredResults}
-          allLinks={links}
-          allCategories={categories}
-          searchQuery={searchQuery}
-          onClearSearch={() => setSearchQuery('')}
-          onEditLink={setEditingLink}
-          onDeleteLink={handleDeleteLink}
-          onEditCategory={setEditingCategory}
-          onDeleteCategory={handleDeleteCategory}
-          onAddLinkToCategory={handleAddLinkToCategory}
-          onAddCategory={() => setIsAddCategoryOpen(true)}
+      <CssOrbs theme={theme} />
+      <div className="content-wrapper" style={{ minHeight: '100vh' }}>
+        <Header
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          onAddLink={() => setIsAddLinkOpen(true)}
+          searchInputRef={searchBarRef}
         />
-      </main>
+        <main style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 32px' }}>
+          <HeroSection />
+          <CategoryGrid
+            results={filteredResults}
+            allLinks={links}
+            allCategories={categories}
+            searchQuery={searchQuery}
+            onClearSearch={() => setSearchQuery('')}
+            onEditLink={setEditingLink}
+            onDeleteLink={handleDeleteLink}
+            onEditCategory={setEditingCategory}
+            onDeleteCategory={handleDeleteCategory}
+            onAddLinkToCategory={handleAddLinkToCategory}
+            onAddCategory={() => setIsAddCategoryOpen(true)}
+          />
+        </main>
+        <Footer />
 
-      {/* Modals */}
-      <AddLinkModal
-        isOpen={isAddLinkOpen}
-        onClose={() => {
-          setIsAddLinkOpen(false);
-          setPreselectedCategoryId(undefined);
-        }}
-        preselectedCategoryId={preselectedCategoryId}
-      />
-      {editingLink && (
-        <EditLinkModal
-          isOpen={!!editingLink}
-          onClose={() => setEditingLink(null)}
-          link={editingLink}
+        <AddLinkModal
+          key={`add-link-${preselectedCategoryId ?? 'none'}`}
+          isOpen={isAddLinkOpen}
+          onClose={() => {
+            setIsAddLinkOpen(false);
+            setPreselectedCategoryId(undefined);
+          }}
+          preselectedCategoryId={preselectedCategoryId}
         />
-      )}
-      <AddCategoryModal
-        isOpen={isAddCategoryOpen}
-        onClose={() => setIsAddCategoryOpen(false)}
-      />
-      {editingCategory && (
-        <EditCategoryModal
-          isOpen={!!editingCategory}
-          onClose={() => setEditingCategory(null)}
-          category={editingCategory}
+        {editingLink && (
+          <EditLinkModal
+            key={editingLink.id}
+            isOpen={!!editingLink}
+            onClose={() => setEditingLink(null)}
+            link={editingLink}
+          />
+        )}
+        <AddCategoryModal
+          isOpen={isAddCategoryOpen}
+          onClose={() => setIsAddCategoryOpen(false)}
         />
-      )}
+        {editingCategory && (
+          <EditCategoryModal
+            key={editingCategory.id}
+            isOpen={!!editingCategory}
+            onClose={() => setEditingCategory(null)}
+            category={editingCategory}
+          />
+        )}
 
-      <ToastContainer />
-    </div>
+        <ToastContainer />
+      </div>
     </>
   );
 }

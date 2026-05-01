@@ -64,4 +64,24 @@ describe('useKeyboardShortcuts', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'n' }));
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it('skips shortcuts when a <dialog> is open', () => {
+    const cb = vi.fn();
+    document.body.innerHTML = '<dialog open></dialog><div tabindex="0" data-card-id="c1"></div>';
+    const card = document.querySelector('[data-card-id]') as HTMLElement;
+    card.focus();
+    renderHook(() => useKeyboardShortcuts({ e: cb }));
+    card.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }));
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('skips when active element is SELECT', () => {
+    const cb = vi.fn();
+    document.body.innerHTML = '<select><option>a</option></select>';
+    const sel = document.querySelector('select') as HTMLSelectElement;
+    sel.focus();
+    renderHook(() => useKeyboardShortcuts({ e: cb }));
+    sel.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true }));
+    expect(cb).not.toHaveBeenCalled();
+  });
 });

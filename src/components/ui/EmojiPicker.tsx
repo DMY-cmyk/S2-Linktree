@@ -22,24 +22,28 @@ const EMOJI_LABELS: Record<string, string> = {
 export function EmojiPicker({ selected, onSelect }: EmojiPickerProps) {
   return (
     <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Choose category emoji">
-      {EMOJI_OPTIONS.map((emoji) => (
-        <button
-          key={emoji}
-          type="button"
-          role="radio"
-          aria-checked={selected === emoji}
-          aria-label={`${EMOJI_LABELS[emoji] ?? emoji} emoji`}
-          onClick={() => onSelect(emoji)}
-          className={cn(
-            'w-10 h-10 flex items-center justify-center text-lg rounded-lg border-2 transition-all cursor-pointer',
-            selected === emoji
-              ? 'border-[var(--border-color)] shadow-[2px_2px_0px_var(--border-color)] bg-[var(--bg-primary)]'
-              : 'border-transparent hover:border-[var(--border-color)]'
-          )}
-        >
-          {emoji}
-        </button>
-      ))}
+      {EMOJI_OPTIONS.map((emoji) => {
+        const isSelected = selected === emoji;
+        return (
+          <button
+            key={emoji}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            aria-label={`${EMOJI_LABELS[emoji] ?? emoji} emoji`}
+            onClick={() => onSelect(emoji)}
+            className={cn(
+              'flex items-center justify-center transition-colors cursor-pointer',
+              'h-9 w-9 text-lg rounded-[8px] border-[1.5px]',
+              isSelected
+                ? 'border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface))]'
+                : 'border-[var(--border-soft)] bg-[var(--surface)] hover:border-[var(--accent)]'
+            )}
+          >
+            {emoji}
+          </button>
+        );
+      })}
     </div>
   );
 }
