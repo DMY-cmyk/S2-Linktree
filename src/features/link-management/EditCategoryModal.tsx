@@ -5,10 +5,10 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { EmojiPicker } from '@/components/ui/EmojiPicker';
-import { CATEGORY_COLORS } from '@/lib/constants';
+import { CATEGORY_COLORS, CATEGORY_TAGS } from '@/lib/constants';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
-import type { Category } from '@/types';
+import type { Category, CategoryTag } from '@/types';
 
 interface EditCategoryModalProps {
   isOpen: boolean;
@@ -23,12 +23,14 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
   const [name, setName] = useState(category.name);
   const [emoji, setEmoji] = useState(category.emoji);
   const [color, setColor] = useState<string>(category.color);
+  const [tag, setTag] = useState<CategoryTag>(category.tag);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setName(category.name);
     setEmoji(category.emoji);
     setColor(category.color);
+    setTag(category.tag);
     setErrors({});
   }, [category]);
 
@@ -46,6 +48,7 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
       name: name.trim(),
       emoji,
       color,
+      tag,
     });
     addToast('Category updated', 'success');
     onClose();
@@ -81,6 +84,18 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
                   transform: color === c.hex ? 'scale(1.2)' : 'scale(1)',
                 }}
               />
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">Tag</label>
+          <div role="radiogroup" className="flex flex-wrap gap-2">
+            {CATEGORY_TAGS.map((t) => (
+              <label key={t} className="inline-flex items-center gap-1 text-sm cursor-pointer">
+                <input type="radio" name="edit-category-tag" value={t} checked={tag === t}
+                  onChange={() => setTag(t)} aria-label={t} />
+                {t}
+              </label>
             ))}
           </div>
         </div>
