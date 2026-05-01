@@ -1,51 +1,35 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeToggle } from './ThemeToggle';
+
+const matchMediaSpy = vi.fn().mockReturnValue({ matches: false });
 
 beforeEach(() => {
   localStorage.clear();
-  document.documentElement.setAttribute('data-theme', 'light');
+  document.documentElement.removeAttribute('data-theme');
+  matchMediaSpy.mockReset().mockReturnValue({ matches: false });
+  window.matchMedia = matchMediaSpy as unknown as typeof window.matchMedia;
 });
 
-describe('ThemeToggle three-state', () => {
-  it('cycles through light → dark → system', async () => {
-    const user = userEvent.setup();
-    localStorage.setItem('s2-linktree-theme', 'light');
+describe('ThemeToggle (binary + legacy migration)', () => {
+  it('default is light when nothing stored', () => {
     render(<ThemeToggle />);
-    const btn = screen.getByTestId('theme-toggle');
-
-    await user.click(btn);
-    expect(localStorage.getItem('s2-linktree-theme')).toBe('dark');
-
-    await user.click(btn);
-    expect(localStorage.getItem('s2-linktree-theme')).toBe('system');
-
-    await user.click(btn);
     expect(localStorage.getItem('s2-linktree-theme')).toBe('light');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
-  it('shows Monitor icon SVG when in system mode', async () => {
-    const user = userEvent.setup();
-    localStorage.setItem('s2-linktree-theme', 'dark');
+  it('toggles light -> dark', () => {
     render(<ThemeToggle />);
-    const btn = screen.getByTestId('theme-toggle');
-
-    await user.click(btn);
-    const svg = btn.querySelector('svg');
-    expect(svg).toBeTruthy();
+    fireEvent.click(screen.getByRole('button'));
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(localStorage.getItem('s2-linktree-theme')).toBe('dark');
   });
 
-  it('updates aria-label for each state', async () => {
-    const user = userEvent.setup();
-    localStorage.setItem('s2-linktree-theme', 'light');
+  it('legacy "system" re-derives via matchMedia and persists', () => {
+    localStorage.setItem('s2-linktree-theme', 'system');
+    matchMediaSpy.mockReturnValue({ matches: true });
     render(<ThemeToggle />);
-    const btn = screen.getByTestId('theme-toggle');
-
-    expect(btn.getAttribute('aria-label')).toBe('Switch to dark mode');
-    await user.click(btn);
-    expect(btn.getAttribute('aria-label')).toBe('Switch to system theme');
-    await user.click(btn);
-    expect(btn.getAttribute('aria-label')).toBe('Switch to light mode');
+    expect(localStorage.getItem('s2-linktree-theme')).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 });

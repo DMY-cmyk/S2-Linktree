@@ -1,59 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Monitor } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
-type ThemePreference = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
+const KEY = 's2-linktree-theme';
 
-function resolveTheme(preference: ThemePreference): 'light' | 'dark' {
-  if (preference === 'system') {
-    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
+function readInitial(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  const raw = localStorage.getItem(KEY);
+  if (raw === 'light' || raw === 'dark') return raw;
+  if (raw === 'system') {
+    const next: Theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark' : 'light';
+    localStorage.setItem(KEY, next);
+    return next;
   }
-  return preference;
+  localStorage.setItem(KEY, 'light');
+  return 'light';
 }
 
 export function ThemeToggle() {
-  const [preference, setPreference] = useState<ThemePreference>(() => {
-    if (typeof window === 'undefined') return 'system';
-    const stored = localStorage.getItem('s2-linktree-theme') as ThemePreference | null;
-    return stored ?? 'system';
-  });
-
+  const [theme, setTheme] = useState<Theme>('light');
   useEffect(() => {
-    const stored = localStorage.getItem('s2-linktree-theme') as ThemePreference | null;
-    if (stored) {
-      setPreference(stored);
-      document.documentElement.setAttribute('data-theme', resolveTheme(stored));
-    }
+    const initial = readInitial();
+    setTheme(initial);
+    document.documentElement.setAttribute('data-theme', initial);
   }, []);
 
-  const cycle = () => {
-    const next: ThemePreference = preference === 'light' ? 'dark' : preference === 'dark' ? 'system' : 'light';
-    setPreference(next);
-    document.documentElement.setAttribute('data-theme', resolveTheme(next));
-    localStorage.setItem('s2-linktree-theme', next);
+  const toggle = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(KEY, next);
   };
 
-  const ariaLabel = preference === 'light'
-    ? 'Switch to dark mode'
-    : preference === 'dark'
-    ? 'Switch to system theme'
-    : 'Switch to light mode';
-
   return (
-    <motion.button
-      onClick={cycle}
-      whileHover={{ rotate: 15 }}
-      whileTap={{ scale: 0.9 }}
-      className="px-3 py-1.5 text-sm font-bold border-2 border-[var(--border-color)] rounded-lg bg-[var(--color-warning)] text-[var(--color-on-warning)] shadow-[2px_2px_0px_var(--border-color)] cursor-pointer"
-      aria-label={ariaLabel}
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       data-testid="theme-toggle"
+      style={{
+        width: 34, height: 34, display: 'grid', placeItems: 'center',
+        background: 'var(--surface)', color: 'var(--text)',
+        border: '1.5px solid var(--border-soft)', borderRadius: 8,
+        cursor: 'pointer',
+      }}
     >
-      {preference === 'light' ? '☀️' : preference === 'dark' ? '🌙' : <Monitor size={16} strokeWidth={2.5} />}
-    </motion.button>
+      {theme === 'dark' ? <Sun size={15} strokeWidth={1.75} /> : <Moon size={15} strokeWidth={1.75} />}
+    </button>
   );
 }
