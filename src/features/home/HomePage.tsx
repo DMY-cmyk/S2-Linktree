@@ -81,6 +81,32 @@ export function HomePage() {
   // Keyboard shortcuts
   useKeyboardShortcuts({
     'mod+k': () => searchBarRef.current?.focus(),
+    e: () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return;
+      const cardEl = el.closest('[data-card-id]') as HTMLElement | null;
+      const linkEl = el.closest('[data-link-id]') as HTMLElement | null;
+      if (cardEl?.dataset.cardId) {
+        const cat = categories.find((c) => c.id === cardEl.dataset.cardId);
+        if (cat) setEditingCategory(cat);
+      } else if (linkEl?.dataset.linkId) {
+        const lnk = links.find((l) => l.id === linkEl.dataset.linkId);
+        if (lnk) setEditingLink(lnk);
+      }
+    },
+    d: () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return;
+      const cardEl = el.closest('[data-card-id]') as HTMLElement | null;
+      const linkEl = el.closest('[data-link-id]') as HTMLElement | null;
+      if (cardEl?.dataset.cardId) {
+        const cat = categories.find((c) => c.id === cardEl.dataset.cardId);
+        if (cat) handleDeleteCategory(cat);
+      } else if (linkEl?.dataset.linkId) {
+        const lnk = links.find((l) => l.id === linkEl.dataset.linkId);
+        if (lnk) handleDeleteLink(lnk);
+      }
+    },
   });
 
   return (
