@@ -1,3 +1,10 @@
+export type CategoryTag =
+  | 'Entry exam'
+  | 'Language'
+  | 'Coursework'
+  | 'Calendar'
+  | 'Archive';
+
 export interface Category {
   id: string;
   name: string;
@@ -5,6 +12,7 @@ export interface Category {
   color: string;
   order: number;
   createdAt: number;
+  tag: CategoryTag;
 }
 
 export interface Link {
