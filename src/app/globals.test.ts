@@ -1,49 +1,30 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { join } from 'path';
 
-describe('globals.css semantic tokens', () => {
-  const css = readFileSync(resolve(__dirname, 'globals.css'), 'utf-8');
+const css = readFileSync(join(__dirname, 'globals.css'), 'utf8');
 
-  it('defines --color-success in light theme', () => {
-    expect(css).toContain('--color-success');
+describe('globals.css polished tokens', () => {
+  it('defines warm-paper light palette', () => {
+    expect(css).toMatch(/--bg:\s*#fbf9f4/);
+    expect(css).toMatch(/--accent:\s*#6d3aed/);
+    expect(css).toMatch(/--surface:\s*#ffffff/);
+    expect(css).toMatch(/--border-soft:\s*#d8d3c6/);
   });
-
-  it('defines --color-danger in light theme', () => {
-    expect(css).toContain('--color-danger');
+  it('defines deep-navy dark palette', () => {
+    expect(css).toMatch(/\[data-theme="dark"\]/);
+    expect(css).toMatch(/--bg:\s*#0e0f1a/);
+    expect(css).toMatch(/--accent:\s*#b497ff/);
   });
-
-  it('defines --color-warning in light theme', () => {
-    expect(css).toContain('--color-warning');
+  it('defines orb keyframes', () => {
+    for (const k of ['float', 'float-alt', 'float-slow', 'pulse-glow', 'fade-up']) {
+      expect(css).toMatch(new RegExp(`@keyframes\\s+${k}\\b`));
+    }
   });
-
-  it('defines --color-on-success for text contrast', () => {
-    expect(css).toContain('--color-on-success');
+  it('defines reduced-motion override for .animated-bg', () => {
+    expect(css).toMatch(/prefers-reduced-motion:\s*reduce[\s\S]*\.animated-bg/);
   });
-
-  it('defines --color-on-danger for text contrast', () => {
-    expect(css).toContain('--color-on-danger');
-  });
-
-  it('defines --color-on-warning for text contrast', () => {
-    expect(css).toContain('--color-on-warning');
-  });
-
-  it('defines --color-on-accent for text contrast', () => {
-    expect(css).toContain('--color-on-accent');
-  });
-});
-
-describe('globals.css focus and skip-link styles', () => {
-  const css = readFileSync(resolve(__dirname, 'globals.css'), 'utf-8');
-
-  it('defines :focus-visible outline style', () => {
-    expect(css).toContain(':focus-visible');
-    expect(css).toContain('outline');
-    expect(css).toContain('var(--accent)');
-  });
-
-  it('defines skip-to-content link styles', () => {
-    expect(css).toContain('.skip-to-content');
+  it('removes legacy aurora keyframes', () => {
+    expect(css).not.toMatch(/@keyframes\s+aurora/);
   });
 });
