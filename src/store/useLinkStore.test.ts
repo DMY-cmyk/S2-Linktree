@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useLinkStore } from './useLinkStore';
+import { SEED_LAST_UPDATED } from '@/lib/constants';
 
 beforeEach(() => {
   useLinkStore.setState({ categories: [], links: [] });
@@ -8,7 +9,7 @@ beforeEach(() => {
 describe('useLinkStore', () => {
   describe('addCategory', () => {
     it('adds a category with generated id and timestamp', () => {
-      useLinkStore.getState().addCategory({ name: 'Test', emoji: '📝', color: '#a8ff78', order: 0 });
+      useLinkStore.getState().addCategory({ name: 'Test', emoji: '📝', color: '#a8ff78', order: 0, tag: 'Coursework' });
       const cats = useLinkStore.getState().categories;
       expect(cats).toHaveLength(1);
       expect(cats[0].name).toBe('Test');
@@ -19,7 +20,7 @@ describe('useLinkStore', () => {
 
   describe('updateCategory', () => {
     it('updates specified fields only', () => {
-      useLinkStore.getState().addCategory({ name: 'Old', emoji: '📝', color: '#a8ff78', order: 0 });
+      useLinkStore.getState().addCategory({ name: 'Old', emoji: '📝', color: '#a8ff78', order: 0, tag: 'Coursework' });
       const id = useLinkStore.getState().categories[0].id;
       useLinkStore.getState().updateCategory(id, { name: 'New', color: '#78d6ff' });
       const cat = useLinkStore.getState().categories[0];
@@ -31,7 +32,7 @@ describe('useLinkStore', () => {
 
   describe('deleteCategory', () => {
     it('removes category and cascades to delete its links', () => {
-      useLinkStore.getState().addCategory({ name: 'Cat', emoji: '📝', color: '#a8ff78', order: 0 });
+      useLinkStore.getState().addCategory({ name: 'Cat', emoji: '📝', color: '#a8ff78', order: 0, tag: 'Coursework' });
       const catId = useLinkStore.getState().categories[0].id;
       useLinkStore.getState().addLink({ title: 'L1', url: 'https://a.com', categoryId: catId, order: 0 });
       useLinkStore.getState().addLink({ title: 'L2', url: 'https://b.com', categoryId: catId, order: 1 });
@@ -43,8 +44,8 @@ describe('useLinkStore', () => {
     it('does not delete links from other categories', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
-          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1, tag: 'Coursework' },
         ],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
@@ -89,9 +90,9 @@ describe('useLinkStore', () => {
     it('swaps two categories and reassigns sequential order values', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
-          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
-          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1, tag: 'Coursework' },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1, tag: 'Coursework' },
         ],
         links: [],
       });
@@ -107,9 +108,9 @@ describe('useLinkStore', () => {
     it('handles moving a category backward', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
-          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
-          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1, tag: 'Coursework' },
+          { id: 'c3', name: 'C', emoji: 'c', color: '#aaa', order: 2, createdAt: 1, tag: 'Coursework' },
         ],
         links: [],
       });
@@ -125,7 +126,7 @@ describe('useLinkStore', () => {
     it('does nothing when activeId equals overId', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
         ],
         links: [],
       });
@@ -137,7 +138,7 @@ describe('useLinkStore', () => {
   describe('reorderLinks', () => {
     it('reorders links within a category', () => {
       useLinkStore.setState({
-        categories: [{ id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 }],
+        categories: [{ id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' }],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
           { id: 'l2', categoryId: 'c1', title: 'L2', url: 'https://2.com', order: 1, createdAt: 1 },
@@ -184,8 +185,8 @@ describe('useLinkStore', () => {
     it('moves a link to a different category at specified index', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1 },
-          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1 },
+          { id: 'c1', name: 'A', emoji: 'a', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
+          { id: 'c2', name: 'B', emoji: 'b', color: '#000', order: 1, createdAt: 1, tag: 'Coursework' },
         ],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'L1', url: 'https://1.com', order: 0, createdAt: 1 },
@@ -262,7 +263,7 @@ describe('useLinkStore', () => {
     it('getSnapshot returns a deep copy of current state', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'Test', emoji: '📝', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c1', name: 'Test', emoji: '📝', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
         ],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'Link', url: 'https://example.com', order: 0, createdAt: 1 },
@@ -284,7 +285,7 @@ describe('useLinkStore', () => {
 
       const snapshot = {
         categories: [
-          { id: 'c1', name: 'Restored', emoji: '🔄', color: '#000', order: 0, createdAt: 1 },
+          { id: 'c1', name: 'Restored', emoji: '🔄', color: '#000', order: 0, createdAt: 1, tag: 'Coursework' },
         ],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'Restored Link', url: 'https://restored.com', order: 0, createdAt: 1 },
@@ -301,7 +302,7 @@ describe('useLinkStore', () => {
     it('snapshot is independent of store mutations', () => {
       useLinkStore.setState({
         categories: [
-          { id: 'c1', name: 'Before', emoji: '📝', color: '#fff', order: 0, createdAt: 1 },
+          { id: 'c1', name: 'Before', emoji: '📝', color: '#fff', order: 0, createdAt: 1, tag: 'Coursework' },
         ],
         links: [],
       });
@@ -313,5 +314,67 @@ describe('useLinkStore', () => {
       expect(snapshot.categories).toHaveLength(1);
       expect(snapshot.categories[0].name).toBe('Before');
     });
+  });
+});
+
+describe('lastUpdatedAt', () => {
+  it('initializes from SEED_LAST_UPDATED', () => {
+    // reset to fresh state (clears beforeEach override)
+    useLinkStore.setState({ categories: [], links: [], lastUpdatedAt: SEED_LAST_UPDATED });
+    expect(useLinkStore.getState().lastUpdatedAt).toBe(SEED_LAST_UPDATED);
+  });
+
+  it('bumps on addCategory', () => {
+    useLinkStore.setState({ categories: [], links: [], lastUpdatedAt: 1 });
+    useLinkStore.getState().addCategory({
+      name: 'X', emoji: '📝', color: '#16a34a', order: 0, tag: 'Coursework',
+    });
+    expect(useLinkStore.getState().lastUpdatedAt).toBeGreaterThan(1);
+  });
+
+  it('bumps on deleteLink', () => {
+    useLinkStore.setState({
+      categories: [
+        { id: 'c1', name: 'A', emoji: '📘', color: '#16a34a', order: 0, createdAt: 1, tag: 'Coursework' },
+      ],
+      links: [
+        { id: 'l1', categoryId: 'c1', title: 'L', url: 'https://a.com', order: 0, createdAt: 1 },
+      ],
+      lastUpdatedAt: 1,
+    });
+    useLinkStore.getState().deleteLink('l1');
+    expect(useLinkStore.getState().lastUpdatedAt).toBeGreaterThan(1);
+  });
+});
+
+describe('addCategory tag insertion', () => {
+  it('places new category at top of its tag (order = minOrderInTag - 1)', () => {
+    useLinkStore.setState({
+      categories: [
+        { id: 'a', name: 'A', emoji: '📘', color: '#16a34a', order: 5, createdAt: 1, tag: 'Coursework' },
+        { id: 'b', name: 'B', emoji: '📗', color: '#0284c7', order: 7, createdAt: 1, tag: 'Coursework' },
+      ],
+      links: [],
+      lastUpdatedAt: 0,
+    });
+    useLinkStore.getState().addCategory({
+      name: 'New', emoji: '📕', color: '#7c3aed', order: 999, tag: 'Coursework',
+    });
+    const created = useLinkStore.getState().categories.find((c) => c.name === 'New')!;
+    expect(created.order).toBe(4);
+  });
+
+  it('falls back to global min - 1 when no peer in tag', () => {
+    useLinkStore.setState({
+      categories: [
+        { id: 'a', name: 'A', emoji: '📘', color: '#16a34a', order: 3, createdAt: 1, tag: 'Coursework' },
+      ],
+      links: [],
+      lastUpdatedAt: 0,
+    });
+    useLinkStore.getState().addCategory({
+      name: 'New', emoji: '📅', color: '#0d9488', order: 0, tag: 'Calendar',
+    });
+    expect(useLinkStore.getState().categories.find((c) => c.tag === 'Calendar')!.order).toBe(2);
   });
 });
