@@ -22,7 +22,12 @@ export function HighlightText({ text, query }: HighlightTextProps) {
         i % 2 === 1 ? (
           <mark
             key={i}
-            className="rounded-sm bg-[var(--accent)]/20 text-[var(--text-primary)] px-0.5"
+            style={{
+              background: 'color-mix(in srgb, var(--accent) 22%, transparent)',
+              color: 'var(--text)',
+              borderRadius: 3,
+              padding: '0 2px',
+            }}
           >
             {part}
           </mark>

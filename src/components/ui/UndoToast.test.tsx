@@ -2,12 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { UndoToast } from './UndoToast';
 
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-}));
-
 describe('UndoToast', () => {
   const defaultProps = {
     message: 'Category deleted',

@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { modalContent, reducedModalContent } from '@/animations/variants';
 
 interface ModalProps {
   isOpen: boolean;
@@ -15,7 +13,6 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
-  const shouldReduceMotion = useReducedMotion();
 
   const handleClose = useCallback(() => {
     dialogRef.current?.close();
@@ -46,8 +43,6 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     return () => dialog.removeEventListener('cancel', handleCancel);
   }, [handleClose]);
 
-  const contentVariants = shouldReduceMotion ? reducedModalContent : modalContent;
-
   return (
     <dialog
       ref={dialogRef}
@@ -56,26 +51,61 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         if (e.target === dialogRef.current) handleClose();
       }}
     >
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            {...contentVariants}
-            className="bg-[var(--bg-card)] border-2 border-[var(--border-color)] rounded-xl shadow-[6px_6px_0px_var(--border-color)] p-6 max-h-[85vh] overflow-y-auto"
+      {isOpen && (
+        <div
+          className="fade-up"
+          style={{
+            background: 'var(--surface)',
+            border: '1.5px solid var(--border)',
+            borderRadius: 14,
+            boxShadow: '6px 6px 0 var(--shadow-color)',
+            padding: 24,
+            maxHeight: '85vh',
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 id="modal-title" className="text-lg font-extrabold text-[var(--text-primary)]">{title}</h2>
-              <button
-                onClick={handleClose}
-                aria-label="Close dialog"
-                className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer rounded-lg"
-              >
-                <X size={20} strokeWidth={2.5} />
-              </button>
-            </div>
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <h2
+              id="modal-title"
+              style={{
+                margin: 0,
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: '-0.01em',
+                color: 'var(--text)',
+              }}
+            >
+              {title}
+            </h2>
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Close dialog"
+              style={{
+                width: 28,
+                height: 28,
+                display: 'grid',
+                placeItems: 'center',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: 6,
+                color: 'var(--text-3)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} strokeWidth={1.75} />
+            </button>
+          </div>
+          {children}
+        </div>
+      )}
     </dialog>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 
 interface UndoToastProps {
   message: string;
@@ -35,15 +34,20 @@ export function UndoToast({ message, duration, onUndo, onDismiss }: UndoToastPro
   }, [duration, onDismiss]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="rounded-xl border-2 border-[var(--border-color)] bg-[var(--bg-card)] p-3 shadow-[3px_3px_0px_var(--border-color)]"
+    <div
+      className="fade-up"
+      style={{
+        background: 'var(--surface)',
+        border: '1.5px solid var(--border)',
+        borderRadius: 10,
+        boxShadow: '3px 3px 0 var(--shadow-color)',
+        padding: 12,
+      }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-[var(--text-primary)]">{message}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{message}</span>
         <button
+          type="button"
           onClick={() => {
             if (!dismissedRef.current) {
               dismissedRef.current = true;
@@ -51,18 +55,45 @@ export function UndoToast({ message, duration, onUndo, onDismiss }: UndoToastPro
               onDismiss();
             }
           }}
-          className="shrink-0 rounded-lg border-2 border-[var(--border-color)] bg-[var(--accent)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white transition-transform hover:scale-105 active:scale-95"
+          className="mono"
+          style={{
+            flexShrink: 0,
+            border: '1.5px solid var(--border)',
+            borderRadius: 8,
+            background: 'var(--accent)',
+            color: 'var(--accent-on)',
+            padding: '4px 10px',
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}
         >
           Undo
         </button>
       </div>
-      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[var(--border-color)]/30">
+      <div
+        style={{
+          marginTop: 8,
+          height: 3,
+          width: '100%',
+          overflow: 'hidden',
+          borderRadius: 999,
+          background: 'var(--border-soft)',
+        }}
+      >
         <div
           data-testid="undo-progress"
-          className="h-full rounded-full bg-[var(--accent)] transition-all duration-75 ease-linear"
-          style={{ width: `${progress}%` }}
+          style={{
+            height: '100%',
+            borderRadius: 999,
+            background: 'var(--accent)',
+            width: `${progress}%`,
+            transition: 'width 75ms linear',
+          }}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }

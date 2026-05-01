@@ -2,12 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RichEmptyState } from './RichEmptyState';
 
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  },
-}));
-
 describe('RichEmptyState', () => {
   it('renders emoji, title, and description', () => {
     render(

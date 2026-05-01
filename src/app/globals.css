@@ -89,8 +89,22 @@ body {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
 .fade-up { animation: fade-up 220ms ease-out both; }
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--surface)) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
 
 .card-rest { transform: translate(0, 0); box-shadow: 3px 3px 0 var(--shadow-color); transition: transform 120ms ease, box-shadow 120ms ease; }
 .card-hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--shadow-color); }

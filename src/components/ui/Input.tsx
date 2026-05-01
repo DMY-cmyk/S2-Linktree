@@ -18,7 +18,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-bold text-[var(--text-primary)] mb-1">
+          <label
+            htmlFor={inputId}
+            className="block text-xs font-medium mb-1.5 text-[var(--text-2)]"
+            style={{
+              fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace)',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}
+          >
             {label}
           </label>
         )}
@@ -27,14 +35,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full px-4 py-2 text-sm font-medium',
-              'bg-[var(--bg-card)] text-[var(--text-primary)]',
-              'border-2 border-[var(--border-color)] rounded-lg',
-              'shadow-[2px_2px_0px_var(--border-color)]',
-              'placeholder:text-[var(--text-secondary)]',
-              'focus:shadow-[3px_3px_0px_var(--border-color)]',
-              'transition-shadow',
-              error && 'border-[var(--color-danger)] pr-10',
+              'w-full px-3 py-2 text-sm',
+              'bg-[var(--surface)] text-[var(--text)]',
+              'border-[1.5px] border-[var(--border-soft)] rounded-[8px]',
+              'placeholder:text-[var(--text-3)]',
+              'focus:border-[var(--accent)]',
+              'transition-colors',
+              error && 'border-[var(--danger)] pr-9',
               className
             )}
             aria-invalid={error ? 'true' : undefined}
@@ -42,13 +49,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {error && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-danger)]">
-              <AlertCircle size={16} strokeWidth={2.5} />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--danger)]">
+              <AlertCircle size={14} strokeWidth={1.75} />
             </div>
           )}
         </div>
         {error && (
-          <p id={errorId} className="mt-1 text-xs font-bold text-[var(--color-danger)]">{error}</p>
+          <p id={errorId} className="mt-1 text-xs font-medium text-[var(--danger)]">
+            {error}
+          </p>
         )}
       </div>
     );
