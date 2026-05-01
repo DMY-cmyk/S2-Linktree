@@ -1,33 +1,42 @@
-import type { Category, Link } from '@/types';
+import type { Category, CategoryTag, Link } from '@/types';
+
+export const CATEGORY_TAGS = [
+  'Entry exam', 'Language', 'Coursework', 'Calendar', 'Archive',
+] as const satisfies readonly CategoryTag[];
+
+export const CATEGORY_TAG_ORDER: readonly CategoryTag[] = CATEGORY_TAGS;
+export const DEFAULT_CATEGORY_TAG: CategoryTag = 'Coursework';
+
+export const SEED_LAST_UPDATED: number =
+  Number(process.env.NEXT_PUBLIC_BUILD_TIME) || Date.now();
 
 export const CATEGORY_COLORS = [
-  { hex: '#a8ff78', textColor: '#222222' },  // Lime
-  { hex: '#78d6ff', textColor: '#222222' },  // Cyan
-  { hex: '#ffb3f0', textColor: '#222222' },  // Pink
-  { hex: '#ffd078', textColor: '#222222' },  // Orange
-  { hex: '#c4b5fd', textColor: '#222222' },  // Lavender
-  { hex: '#fca5a5', textColor: '#222222' },  // Coral
-  { hex: '#86efac', textColor: '#222222' },  // Mint
-  { hex: '#fde68a', textColor: '#222222' },  // Yellow
+  { hex: '#16a34a', textColor: '#ffffff' },
+  { hex: '#0284c7', textColor: '#ffffff' },
+  { hex: '#db2777', textColor: '#ffffff' },
+  { hex: '#ea580c', textColor: '#ffffff' },
+  { hex: '#7c3aed', textColor: '#ffffff' },
+  { hex: '#dc2626', textColor: '#ffffff' },
+  { hex: '#059669', textColor: '#ffffff' },
+  { hex: '#ca8a04', textColor: '#ffffff' },
+  { hex: '#0d9488', textColor: '#ffffff' },
 ] as const;
 
 export const EMOJI_OPTIONS = [
-  '📝', '🌐', '📖', '📘', '📗', '📙', '📕', '📅',
-  '📚', '🎓', '💻', '📊', '🔬', '📐', '✏️', '🗂️',
-  '📌', '🔗', '📎', '🏫', '🧪', '📈', '🗓️', '💡',
-  '🎯', '📋', '🔍', '⭐', '🏆', '📁',
+  '📝','🌐','📖','📘','📗','📙','📕','📅','📚','🎓','💻','📊','🔬','📐','✏️','🗂️',
+  '📌','🔗','📎','🏫','🧪','📈','🗓️','💡','🎯','📋','🔍','⭐','🏆','📁',
 ];
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'cat-tpa', name: 'TPA', emoji: '📝', color: '#a8ff78', order: 0, createdAt: 1 },
-  { id: 'cat-toefl', name: 'TOEFL', emoji: '🌐', color: '#78d6ff', order: 1, createdAt: 1 },
-  { id: 'cat-prev-years', name: 'Materi Pasca Maksi', emoji: '📖', color: '#ffb3f0', order: 2, createdAt: 1 },
-  { id: 'cat-sem-1', name: 'Materi (Sem. 1)', emoji: '📘', color: '#ffd078', order: 3, createdAt: 1 },
-  { id: 'cat-sem-2', name: 'Materi (Sem. 2)', emoji: '📗', color: '#c4b5fd', order: 4, createdAt: 1 },
-  { id: 'cat-sem-3', name: 'Materi (Sem. 3)', emoji: '📙', color: '#fca5a5', order: 5, createdAt: 1 },
-  { id: 'cat-sem-4', name: 'Materi (Sem. 4)', emoji: '📕', color: '#86efac', order: 6, createdAt: 1 },
-  { id: 'cat-schedules', name: 'Jadwal Kuliah S2', emoji: '📅', color: '#fde68a', order: 7, createdAt: 1 },
-  { id: '_jztODWj4j17xbBkYO3aS', name: 'Jadwal Ujian S2', emoji: '📅', color: '#86efac', order: 8, createdAt: 1 },
+  { id: 'cat-tpa',         name: 'TPA',                emoji: '📝', color: '#16a34a', order: 0, createdAt: 1, tag: 'Entry exam' },
+  { id: 'cat-toefl',       name: 'TOEFL',              emoji: '🌐', color: '#0284c7', order: 1, createdAt: 1, tag: 'Language'   },
+  { id: 'cat-prev-years',  name: 'Materi Pasca Maksi', emoji: '📖', color: '#db2777', order: 2, createdAt: 1, tag: 'Archive'    },
+  { id: 'cat-sem-1',       name: 'Materi (Sem. 1)',    emoji: '📘', color: '#ea580c', order: 3, createdAt: 1, tag: 'Coursework' },
+  { id: 'cat-sem-2',       name: 'Materi (Sem. 2)',    emoji: '📗', color: '#7c3aed', order: 4, createdAt: 1, tag: 'Coursework' },
+  { id: 'cat-sem-3',       name: 'Materi (Sem. 3)',    emoji: '📙', color: '#dc2626', order: 5, createdAt: 1, tag: 'Coursework' },
+  { id: 'cat-sem-4',       name: 'Materi (Sem. 4)',    emoji: '📕', color: '#059669', order: 6, createdAt: 1, tag: 'Coursework' },
+  { id: 'cat-schedules',   name: 'Jadwal Kuliah S2',   emoji: '📅', color: '#ca8a04', order: 7, createdAt: 1, tag: 'Calendar'   },
+  { id: '_jztODWj4j17xbBkYO3aS', name: 'Jadwal Ujian S2', emoji: '📅', color: '#0d9488', order: 8, createdAt: 1, tag: 'Calendar' },
 ];
 
 export const DEFAULT_LINKS: Link[] = [
