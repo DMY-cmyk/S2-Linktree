@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_TIME: process.env.VERCEL_GIT_COMMIT_AUTHOR_DATE
+      ? String(new Date(process.env.VERCEL_GIT_COMMIT_AUTHOR_DATE).getTime())
+      : String(Date.now()),
+  },
   async headers() {
     return [
       {
