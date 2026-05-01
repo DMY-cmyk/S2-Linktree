@@ -1,48 +1,43 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CategoryCard } from './CategoryCard';
+import type { Category } from '@/types';
 
-const mockCategory = {
-  id: 'cat-1', name: 'Test', emoji: '📚', color: '#a8ff78', order: 0, createdAt: 1,
+const cat: Category = {
+  id: 'c1', name: 'TPA', emoji: '📝', color: '#16a34a',
+  order: 0, createdAt: 1, tag: 'Entry exam',
 };
 
-const defaultProps = {
-  category: mockCategory,
-  links: [],
-  onEditLink: vi.fn(),
-  onDeleteLink: vi.fn(),
-  onEditCategory: vi.fn(),
-  onDeleteCategory: vi.fn(),
-  onAddLink: vi.fn(),
-};
-
-describe('CategoryCard', () => {
-  it('renders Lucide Pencil and Trash2 icons (SVGs, not emoji)', () => {
-    render(<CategoryCard {...defaultProps} />);
-    const svgs = document.querySelectorAll('svg');
-    expect(svgs.length).toBeGreaterThanOrEqual(2);
+describe('CategoryCard polished', () => {
+  it('renders mono tag·count subtitle', () => {
+    render(
+      <CategoryCard category={cat} links={[]} onEditLink={() => {}} onDeleteLink={() => {}}
+        onEditCategory={() => {}} onDeleteCategory={() => {}} onAddLink={() => {}} />
+    );
+    expect(screen.getByText(/Entry exam/)).toBeInTheDocument();
+    expect(screen.getByText(/0 links/)).toBeInTheDocument();
   });
-
-  it('edit button has aria-label with category name', () => {
-    render(<CategoryCard {...defaultProps} />);
-    expect(screen.getByLabelText('Edit Test')).toBeTruthy();
+  it('exposes data-card-id and tabindex for shortcut focus', () => {
+    const { container } = render(
+      <CategoryCard category={cat} links={[]} onEditLink={() => {}} onDeleteLink={() => {}}
+        onEditCategory={() => {}} onDeleteCategory={() => {}} onAddLink={() => {}} />
+    );
+    const article = container.querySelector('[data-card-id="c1"]') as HTMLElement;
+    expect(article).toBeInTheDocument();
+    expect(article.getAttribute('tabindex')).toBe('0');
   });
-
-  it('delete button has aria-label with category name', () => {
-    render(<CategoryCard {...defaultProps} />);
-    expect(screen.getByLabelText('Delete Test')).toBeTruthy();
+  it('renders dashed Add link CTA', () => {
+    render(
+      <CategoryCard category={cat} links={[]} onEditLink={() => {}} onDeleteLink={() => {}}
+        onEditCategory={() => {}} onDeleteCategory={() => {}} onAddLink={() => {}} />
+    );
+    expect(screen.getByRole('button', { name: /add link/i })).toBeInTheDocument();
   });
-
-  it('action buttons are always visible at 60% opacity', () => {
-    render(<CategoryCard {...defaultProps} />);
-    const editBtn = screen.getByLabelText('Edit Test');
-    expect(editBtn.className).toContain('opacity-60');
-    expect(editBtn.className).not.toContain('opacity-0');
-  });
-
-  it('link count has aria-label', () => {
-    const link = { id: 'l1', categoryId: 'cat-1', title: 'A', url: 'https://a.com', order: 0, createdAt: 1 };
-    render(<CategoryCard {...defaultProps} links={[link]} />);
-    expect(screen.getByLabelText('1 link')).toBeTruthy();
+  it('shows in-card empty state when links is empty', () => {
+    render(
+      <CategoryCard category={cat} links={[]} onEditLink={() => {}} onDeleteLink={() => {}}
+        onEditCategory={() => {}} onDeleteCategory={() => {}} onAddLink={() => {}} />
+    );
+    expect(screen.getByText(/no links yet/i)).toBeInTheDocument();
   });
 });
