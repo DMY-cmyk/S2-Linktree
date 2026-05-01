@@ -9,8 +9,8 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
-vi.mock('@/features/background-effects/AnimatedBackground', () => ({
-  AnimatedBackground: () => null,
+vi.mock('@/features/background-effects/CssOrbs', () => ({
+  CssOrbs: () => null,
 }));
 
 beforeEach(() => {
