@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -20,19 +20,13 @@ export function EditCategoryModal({ isOpen, onClose, category }: EditCategoryMod
   const updateCategory = useLinkStore((s) => s.updateCategory);
   const { addToast } = useToastStore();
 
+  // Lazy-init from prop. Parent (HomePage) renders with key={category.id}
+  // so this component remounts (fresh state) when editing a different category.
   const [name, setName] = useState(category.name);
   const [emoji, setEmoji] = useState(category.emoji);
   const [color, setColor] = useState<string>(category.color);
   const [tag, setTag] = useState<CategoryTag>(category.tag);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    setName(category.name);
-    setEmoji(category.emoji);
-    setColor(category.color);
-    setTag(category.tag);
-    setErrors({});
-  }, [category]);
 
   const validate = () => {
     const errs: Record<string, string> = {};

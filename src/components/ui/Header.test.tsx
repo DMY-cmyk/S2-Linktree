@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Header } from './Header';
 import { createRef } from 'react';
+import type { RefObject } from 'react';
+import type { SearchBarRef } from '@/features/search/SearchBar';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -14,7 +16,7 @@ describe('Header', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Header
       query="" onQueryChange={() => {}}
-      onAddLink={() => {}} searchInputRef={ref as any}
+      onAddLink={() => {}} searchInputRef={ref as unknown as RefObject<SearchBarRef | null>}
     />);
     expect(screen.getByText('S2')).toBeInTheDocument();
     expect(screen.getByText(/v5\.0 · polished/)).toBeInTheDocument();
@@ -27,7 +29,7 @@ describe('Header', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Header
       query="" onQueryChange={() => {}}
-      onAddLink={() => {}} searchInputRef={ref as any}
+      onAddLink={() => {}} searchInputRef={ref as unknown as RefObject<SearchBarRef | null>}
     />);
     fireEvent.click(screen.getByRole('button', { name: /filter/i }));
     expect(screen.getAllByRole('checkbox')).toHaveLength(5);

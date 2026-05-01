@@ -21,11 +21,13 @@ function readInitial(): Theme {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>(() => readInitial());
+
+  // Sync DOM attribute on mount (side-effect only, no setState)
   useEffect(() => {
-    const initial = readInitial();
-    setTheme(initial);
-    document.documentElement.setAttribute('data-theme', initial);
+    document.documentElement.setAttribute('data-theme', theme);
+    // Run once on mount to ensure DOM matches initial state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggle = () => {

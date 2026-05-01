@@ -285,7 +285,7 @@ describe('useLinkStore', () => {
 
       const snapshot = {
         categories: [
-          { id: 'c1', name: 'Restored', emoji: '🔄', color: '#000', order: 0, createdAt: 1, tag: 'Coursework' },
+          { id: 'c1', name: 'Restored', emoji: '🔄', color: '#000', order: 0, createdAt: 1, tag: 'Coursework' as const },
         ],
         links: [
           { id: 'l1', categoryId: 'c1', title: 'Restored Link', url: 'https://restored.com', order: 0, createdAt: 1 },

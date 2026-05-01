@@ -3,7 +3,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { HeroSection } from './HeroSection';
 import { CategoryGrid } from '@/features/link-directory/CategoryGrid';
-import { SearchBar } from '@/features/search/SearchBar';
 import type { SearchBarRef } from '@/features/search/SearchBar';
 import { AddLinkModal } from '@/features/link-management/AddLinkModal';
 import { EditLinkModal } from '@/features/link-management/EditLinkModal';
@@ -134,6 +133,7 @@ export function HomePage() {
         <Footer />
 
         <AddLinkModal
+          key={`add-link-${preselectedCategoryId ?? 'none'}`}
           isOpen={isAddLinkOpen}
           onClose={() => {
             setIsAddLinkOpen(false);
@@ -143,6 +143,7 @@ export function HomePage() {
         />
         {editingLink && (
           <EditLinkModal
+            key={editingLink.id}
             isOpen={!!editingLink}
             onClose={() => setEditingLink(null)}
             link={editingLink}
@@ -154,6 +155,7 @@ export function HomePage() {
         />
         {editingCategory && (
           <EditCategoryModal
+            key={editingCategory.id}
             isOpen={!!editingCategory}
             onClose={() => setEditingCategory(null)}
             category={editingCategory}
