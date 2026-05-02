@@ -8,7 +8,7 @@ export function DragHandle({ ref, listeners, attributes }: DragHandleProps) {
   return (
     <button
       ref={ref}
-      className="cursor-grab active:cursor-grabbing touch-none p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+      className="cursor-grab active:cursor-grabbing touch-none p-1 text-[var(--text-3)] hover:text-[var(--text)] transition-colors"
       aria-label="Drag to reorder"
       {...attributes}
       {...listeners}
