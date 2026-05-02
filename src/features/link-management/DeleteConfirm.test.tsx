@@ -5,8 +5,14 @@ import { resolve } from 'path';
 describe('DeleteConfirm tokens', () => {
   const source = readFileSync(resolve(__dirname, 'DeleteConfirm.tsx'), 'utf-8');
 
-  it('uses semantic danger token not hardcoded red', () => {
+  it('uses polished --danger token, not legacy --color-danger', () => {
+    expect(source).not.toContain('--color-danger');
     expect(source).not.toContain('text-red-500');
-    expect(source).toContain('var(--color-danger)');
+    expect(source).toContain('var(--danger)');
+  });
+
+  it('uses Button variant="danger" instead of className override', () => {
+    expect(source).toContain('variant="danger"');
+    expect(source).not.toContain('!bg-[');
   });
 });
