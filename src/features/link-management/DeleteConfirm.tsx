@@ -23,11 +23,11 @@ export function DeleteConfirm({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Delete ${itemType}?`}>
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-[var(--text-primary)]">
+        <p style={{ margin: 0, fontSize: 14, color: 'var(--text)' }}>
           Are you sure you want to delete <strong>&ldquo;{itemName}&rdquo;</strong>?
         </p>
         {itemType === 'category' && linkCount > 0 && (
-          <p className="text-sm font-bold text-[var(--color-danger)]">
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--danger)' }}>
             ⚠️ This will also delete {linkCount} {linkCount === 1 ? 'link' : 'links'} inside it.
           </p>
         )}
@@ -35,10 +35,7 @@ export function DeleteConfirm({
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={onConfirm}
-            className="!bg-[var(--color-danger)] !text-[var(--color-on-danger)] !shadow-[3px_3px_0px_var(--border-color)] hover:!translate-x-[1px] hover:!translate-y-[1px] hover:!shadow-[2px_2px_0px_var(--border-color)]"
-          >
+          <Button variant="danger" onClick={onConfirm}>
             Delete
           </Button>
         </div>
