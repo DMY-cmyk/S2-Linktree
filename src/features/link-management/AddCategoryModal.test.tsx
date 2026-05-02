@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { AddCategoryModal } from './AddCategoryModal';
 import { useLinkStore } from '@/store/useLinkStore';
 
@@ -18,5 +20,19 @@ describe('AddCategoryModal tag picker', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Calendar', hidden: true }));
     fireEvent.click(screen.getByRole('button', { name: /create/i, hidden: true }));
     expect(useLinkStore.getState().categories[0].tag).toBe('Calendar');
+  });
+});
+
+describe('AddCategoryModal tokens', () => {
+  const source = readFileSync(resolve(__dirname, 'AddCategoryModal.tsx'), 'utf-8');
+
+  it('uses --text-2 not legacy --text-primary in labels', () => {
+    expect(source).not.toContain('--text-primary');
+    expect(source).toContain('var(--text-2)');
+  });
+
+  it('uses --border not legacy --border-color in color picker', () => {
+    expect(source).not.toContain('--border-color');
+    expect(source).toContain('var(--border)');
   });
 });

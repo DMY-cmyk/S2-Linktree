@@ -68,11 +68,11 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
           autoFocus
         />
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-1">Emoji</label>
+          <label className="mono" style={{ display: 'block', fontSize: 10, fontWeight: 500, marginBottom: 6, color: 'var(--text-2)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Emoji</label>
           <EmojiPicker selected={emoji} onSelect={setEmoji} />
         </div>
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">Color</label>
+          <label className="mono" style={{ display: 'block', fontSize: 10, fontWeight: 500, marginBottom: 6, color: 'var(--text-2)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Color</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORY_COLORS.map((c) => (
               <button
@@ -82,7 +82,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
                 className="w-8 h-8 rounded-lg border-2 transition-transform cursor-pointer"
                 style={{
                   backgroundColor: c.hex,
-                  borderColor: color === c.hex ? 'var(--border-color)' : 'transparent',
+                  borderColor: color === c.hex ? 'var(--border)' : 'transparent',
                   transform: color === c.hex ? 'scale(1.2)' : 'scale(1)',
                 }}
               />
@@ -90,7 +90,7 @@ export function AddCategoryModal({ isOpen, onClose }: AddCategoryModalProps) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">Tag</label>
+          <label className="mono" style={{ display: 'block', fontSize: 10, fontWeight: 500, marginBottom: 6, color: 'var(--text-2)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Tag</label>
           <div role="radiogroup" className="flex flex-wrap gap-2">
             {CATEGORY_TAGS.map((t) => (
               <label key={t} className="inline-flex items-center gap-1 text-sm cursor-pointer">
