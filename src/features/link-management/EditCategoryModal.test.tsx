@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { EditCategoryModal } from './EditCategoryModal';
 import { useLinkStore } from '@/store/useLinkStore';
 import type { Category } from '@/types';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 const cat: Category = {
   id: 'c1', name: 'A', emoji: '📘', color: '#16a34a',
@@ -22,5 +24,19 @@ describe('EditCategoryModal tag picker', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Calendar', hidden: true }));
     fireEvent.click(screen.getByRole('button', { name: /save/i, hidden: true }));
     expect(useLinkStore.getState().categories[0].tag).toBe('Calendar');
+  });
+});
+
+describe('EditCategoryModal tokens', () => {
+  const source = readFileSync(resolve(__dirname, 'EditCategoryModal.tsx'), 'utf-8');
+
+  it('uses --text-2 not legacy --text-primary in labels', () => {
+    expect(source).not.toContain('--text-primary');
+    expect(source).toContain('var(--text-2)');
+  });
+
+  it('uses --border not legacy --border-color in color picker', () => {
+    expect(source).not.toContain('--border-color');
+    expect(source).toContain('var(--border)');
   });
 });
