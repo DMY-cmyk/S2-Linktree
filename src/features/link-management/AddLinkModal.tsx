@@ -125,13 +125,18 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
           placeholder="Quick note about this link"
         />
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-1">
+          <label className="mono" style={{ display: 'block', fontSize: 10, fontWeight: 500, marginBottom: 6, color: 'var(--text-2)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             Category
           </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full px-3 py-2 text-sm font-medium bg-[var(--bg-card)] text-[var(--text-primary)] border-2 border-[var(--border-color)] rounded-lg shadow-[2px_2px_0px_var(--border-color)] focus:shadow-[3px_3px_0px_var(--border-color)]"
+            style={{
+              width: '100%', height: 36, padding: '0 12px',
+              background: 'var(--surface)', color: 'var(--text)',
+              border: '1.5px solid var(--border-soft)', borderRadius: 8,
+              fontSize: 13, fontFamily: 'inherit',
+            }}
           >
             <option value="">Select a category...</option>
             {categories.map((cat) => (
@@ -141,7 +146,7 @@ export function AddLinkModal({ isOpen, onClose, preselectedCategoryId }: AddLink
             ))}
           </select>
           {errors.categoryId && (
-            <p className="text-xs text-red-500 mt-1">{errors.categoryId}</p>
+            <p style={{ fontSize: 12, fontWeight: 500, marginTop: 4, color: 'var(--danger)' }}>{errors.categoryId}</p>
           )}
         </div>
         <div className="flex gap-3 justify-end pt-2">
