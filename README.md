@@ -1,6 +1,6 @@
 # S2-Linktree
 
-> **Neo-Brutalism Academic Resource Hub** — A Linktree-style app for organizing Master's degree resources by category, featuring a WebGL 3D animated background, animated aurora gradient, and full drag-and-drop reordering.
+> **Polished editorial resource hub** for organizing Master's degree resources by tag and category — with a CSS-only animated background, in-memory drag-and-drop reordering, URL-backed tag filtering, and full keyboard control.
 
 🔗 **Live Demo:** [s2-linktree.vercel.app](https://s2-linktree.vercel.app)
 
@@ -8,76 +8,39 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-![Three.js](https://img.shields.io/badge/Three.js-r183-black?logo=three.js)
 
 ---
 
 ## ✨ Features
 
-### Core
+### Editorial design
+- **Polished palette & typography** — warm-paper light theme, deep-navy dark theme, mono uppercase labels, refined geometry (1.5px borders, 8–14px radii)
+- **CSS-only animated orbs** — four floating gradient orbs + conic accent on a dotted-grid background, all driven by CSS keyframes (no WebGL, no framer-motion)
+- **Bilingual hero** — English headline (“Resource hub for the long haul.”) + Indonesian subtitle, with live stats and a relative “last updated” timestamp
+- **Letter-monogram favicons** — domain-aware single-letter tiles (G for github, C for classroom, D for drive, …) instead of remote favicon fetches
+- **Binary theme** — light / dark only, with first-paint hydration and migration from any legacy `'system'` value via `matchMedia`
 
-- **Category Management** — Create, edit, and delete resource categories with custom emojis and colors
-- **Link Management** — Add, edit, and delete links within categories with auto-title fetching
-- **Search & Filter** — Real-time debounced search across link titles, URLs, and category names with keyboard shortcut (`Ctrl+K` / `Cmd+K`)
-- **Dark / Light / System Theme** — Three-state toggle (light, dark, system) with flash-free SSR hydration, `prefers-color-scheme` auto-detection, and localStorage persistence
+### Organization
+- **Required category tags** — every category belongs to one of `Entry exam`, `Language`, `Coursework`, `Calendar`, `Archive`. Cards are grouped under uppercase section headers with a horizontal rule and zero-padded count
+- **URL-backed tag filter** — the filter popover writes selected tags to the URL query string, so a filtered view is shareable and survives reload
+- **Search** — debounced search across link titles, URLs, descriptions, category names, and category tags
 
-### V2 — 3D Background & Drag-and-Drop
+### Interaction
+- **Drag-and-drop** — categories reorder within the grid; links reorder within a category and can be moved between categories. Powered by `@dnd-kit`
+- **Keyboard shortcuts**
+  - `Cmd/Ctrl + K` focus search
+  - `E` edit the focused card or link
+  - `D` delete the focused card or link
+  - `Esc` clear search / close modals
+- **In-memory state** — categories and links live in a Zustand store with no `persist` middleware; data resets on reload (intentional for the academic-snapshot use case)
+- **`lastUpdatedAt` tracking** — every mutation bumps an in-memory timestamp; on first load it’s seeded from `NEXT_PUBLIC_BUILD_TIME`, which `next.config.ts` injects from Vercel’s `VERCEL_GIT_COMMIT_AUTHOR_DATE` at build time
 
-- **WebGL 3D Animated Background** — Organic, distorted 3D blobs rendered with React Three Fiber and drei's `MeshDistortMaterial` for GPU-accelerated vertex displacement. Features a 3-light rig (ambient + key + rim) and mouse-driven camera parallax. Theme-adaptive lighting (brighter in dark mode, subtler in light). Automatically disabled for users who prefer reduced motion.
-- **Drag-and-Drop Reordering** — Powered by @dnd-kit:
-  - **Category reorder** — Drag categories by their handle to rearrange the grid
-  - **Link reorder** — Drag links within a category to reorder them
-  - **Cross-category moves** — Drag a link from one category and drop it into another (target card highlights with a glow ring)
-- **Neo-Brutalism Drag Animations** — Lift/settle transitions with scale and shadow effects matching the design system
-
-### V3 — Visual Polish & Performance
-
-- **Performance Optimizations**
-  - Adaptive device capability detection with WebGL GPU renderer checks
-  - Reduced sphere geometry segments and blob count for faster rendering
-  - Removed Bloom post-processing to cut GPU overhead
-  - Lower distortion and animation speed on materials
-  - CSS fade-in transition (600ms) on canvas mount to eliminate visual pop-in
-- **3D Blob Visual Polish**
-  - Emissive glow and translucency (opacity 0.7) for lava-lamp aesthetic
-  - Depth-spread blob positions (Z: -2 to -9) for parallax depth
-  - Dual-sine organic floating motion (primary wave + secondary harmonic)
-- **Animated Aurora Gradient Background**
-  - 12-second cycling aurora gradient behind the 3D blobs
-  - Dark theme: purple → teal → magenta
-  - Light theme: peach → mint → lavender
-- **Enhanced UX**
-  - Undo toast for link/category deletions
-  - Keyboard shortcuts (`Ctrl+K` / `Cmd+K` to focus search, `Esc` to close modals)
-  - Skeleton loading states with shimmer animation
-  - Rich empty states with contextual actions
-  - Link favicons via Google Favicon API
-  - Highlight matching text in search results
-
-### V4 — UI/UX Polish & Accessibility
-
-- **Lucide SVG Icon System** — Replaced all functional emoji icons (edit, delete, search, close, add) with [Lucide React](https://lucide.dev/) SVG icons at 2.5px stroke width matching the Neo-Brutalist aesthetic
-- **Semantic Design Tokens** — CSS custom properties for success/danger/warning/accent colors with auto-contrast `--color-on-*` text pairs across both themes
-- **Comprehensive Accessibility**
-  - Global `:focus-visible` accent outline on all interactive elements
-  - Skip-to-content link for keyboard navigation
-  - Native `<dialog>` modal with built-in focus trapping and Escape handling
-  - `aria-invalid` + `aria-describedby` on form inputs with error icon
-  - `role="radiogroup"` with `aria-checked` on emoji picker
-  - Persistent `aria-live` region for screen reader toast announcements
-  - Descriptive `aria-label` on all action buttons, favicons, and link counts
-- **Mobile UX** — Edit/delete actions always visible at 60% opacity (no hover-only), 32px minimum touch targets
-- **Search Enhancements** — Lucide Search/X icons, clear button, two-stage Escape (clear text then blur), platform-aware shortcut hint
-- **Performance** — 50ms mouse parallax throttle, max 3 toast stack, responsive drag overlay sizing for narrow viewports
-- **Reduced Motion** — Two-tier `prefers-reduced-motion` support: decorative animations disabled, functional animations softened to 150ms opacity fades
-- **Category Header Contrast** — Pre-computed text colors per category background for WCAG-compliant readability
-
-### Design & UX
-
-- **Neo-Brutalism Design** — Bold borders, hard shadows, bright accent colors, and playful animations
-- **Fully Client-Side** — All data stored in `localStorage` via Zustand — no backend required
-- **Accessible** — Native dialog focus trapping, ARIA labels, radiogroup semantics, skip-to-content, screen reader announcements
-- **Responsive** — Works on desktop and mobile with touch-friendly drag sensors and always-visible action buttons
+### Accessibility & polish
+- Native `<dialog>` modals with focus trapping and Escape handling
+- `:focus-visible` accent outline on every interactive element, skip-to-content link
+- `aria-checked` on emoji picker, `role="checkbox"` on tag pills, descriptive `aria-label`s throughout
+- Full `prefers-reduced-motion` support (orb animations and stagger fades are disabled)
+- 32px+ touch targets, always-visible action buttons on mobile
 
 ## 🛠️ Tech Stack
 
@@ -85,11 +48,9 @@
 |-------|-----------|
 | Framework | [Next.js 16](https://nextjs.org/) (App Router, Turbopack) |
 | UI | [React 19](https://react.dev/) + [Tailwind CSS v4](https://tailwindcss.com/) |
-| 3D Graphics | [React Three Fiber](https://r3f.docs.pmnd.rs/) + [Three.js](https://threejs.org/) + [@react-three/drei](https://github.com/pmndrs/drei) |
 | Drag & Drop | [@dnd-kit](https://dndkit.com/) (core, sortable, utilities) |
-| State | [Zustand 5](https://zustand.docs.pmnd.rs/) with `persist` middleware |
-| Icons | [Lucide React](https://lucide.dev/) |
-| Animations | [Framer Motion 12](https://motion.dev/) |
+| State | [Zustand 5](https://zustand.docs.pmnd.rs/) (in-memory, no persist) |
+| Icons | [Lucide React](https://lucide.dev/) at 1.75 stroke width |
 | IDs | [nanoid](https://github.com/ai/nanoid) |
 | Testing | [Vitest 4](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) |
 | Language | TypeScript 5 |
@@ -97,25 +58,19 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- **Node.js** ≥ 18
-- **npm** ≥ 9
+- **Node.js** ≥ 20
+- **npm** ≥ 10
 
 ### Install & Run
 
 ```bash
-# Clone the repo
 git clone https://github.com/DMY-cmyk/S2-Linktree.git
 cd S2-Linktree
-
-# Install dependencies
 npm install
-
-# Start the dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
 ### Build for Production
 
@@ -127,68 +82,46 @@ npm start
 ### Run Tests
 
 ```bash
-npm test           # Single run (154 tests)
-npm run test:watch # Watch mode
+npm test           # Single run (170 tests across 41 files)
+npm run test:watch
 ```
 
 ## 📁 Project Structure
 
 ```
 src/
-├── app/                        # Next.js App Router (layout, page, globals.css)
-├── animations/                 # Framer Motion + drag animation presets
-├── components/ui/              # Reusable UI primitives
-│   ├── Button.tsx
-│   ├── Input.tsx
-│   ├── Modal.tsx
-│   ├── ThemeToggle.tsx
-│   ├── Toast.tsx
-│   ├── UndoToast.tsx              # Undo action toast for deletions
-│   ├── EmojiPicker.tsx
-│   ├── DragHandle.tsx             # 6-dot grip handle for drag interactions
-│   ├── HighlightText.tsx          # Search term highlight in results
-│   ├── LinkFavicon.tsx            # Google Favicon API integration
-│   ├── RichEmptyState.tsx         # Contextual empty state with actions
-│   └── SkeletonCard.tsx           # Shimmer loading placeholder
+├── app/                       # Next.js App Router (layout, page, globals.css)
+├── components/ui/             # Reusable primitives
+│   ├── Button.tsx · Input.tsx · Modal.tsx · Toast.tsx · UndoToast.tsx
+│   ├── EmojiPicker.tsx · HighlightText.tsx · MonogramFavicon.tsx
+│   ├── RichEmptyState.tsx · SkeletonCard.tsx
+│   ├── Header.tsx · Footer.tsx · ThemeToggle.tsx · DragHandle.tsx
 ├── features/
-│   ├── home/                   # HomePage orchestrator + HeroSection
-│   ├── link-directory/         # CategoryCard, CategoryGrid, LinkItem
-│   ├── link-management/        # Add/Edit/Delete modals for links & categories
-│   ├── search/                 # SearchBar with debounce
-│   ├── background-effects/     # WebGL 3D animated background
-│   │   ├── AnimatedBackground.tsx   # Canvas wrapper with Suspense, fade-in, reduced-motion fallback
-│   │   ├── BlobScene.tsx            # 4 blobs, camera parallax, theme-adaptive lighting
-│   │   ├── FloatingBlob.tsx         # Organic 3D blob with emissive glow, transparency, dual-sine motion
-│   │   └── useMouseParallax.ts      # Normalized mouse coordinate hook
-│   └── card-ordering/          # Drag-and-drop reordering system
-│       ├── SortableCategoryGrid.tsx  # DndContext wrapper + DragOverlay
-│       ├── SortableCategoryCard.tsx  # Sortable category wrapper
-│       ├── SortableLinkList.tsx      # Droppable link list container
-│       ├── SortableLinkItem.tsx      # Sortable link wrapper
-│       ├── DragOverlayContent.tsx    # Category/link drag preview
-│       └── useCategoryDnd.ts        # Sensors + drag event handlers
-├── hooks/                      # Custom hooks
-│   ├── useDeviceCapability.ts       # GPU-aware adaptive quality detection
-│   ├── useFilteredLinks.ts          # Search + filter logic
-│   └── useKeyboardShortcuts.ts      # Global keyboard shortcuts
-├── lib/                        # Utils, constants, color palette
-├── store/                      # Zustand stores (links + toasts)
-└── types/                      # TypeScript type definitions
+│   ├── home/                  # HomePage orchestrator + bilingual HeroSection
+│   ├── link-directory/        # CategoryCard, CategoryGrid, LinkItem,
+│   │                          # GroupHeader, TagFilterPopover
+│   ├── link-management/       # Add/Edit/Delete modals (with tag radio)
+│   ├── search/                # SearchBar with debounce + ⌘K badge
+│   ├── background-effects/    # CssOrbs (CSS-only animated background)
+│   └── card-ordering/         # @dnd-kit wrappers + DragOverlay
+├── hooks/                     # useFilteredLinks, useTagGroups, useTagFilter,
+│                              # useKeyboardShortcuts, useCategoryDnd
+├── lib/                       # constants (palette, tags, SEED_LAST_UPDATED), utils
+├── store/                     # useLinkStore (in-memory, lastUpdatedAt tracking)
+└── types/                     # CategoryTag union + Category/Link types
 ```
 
 ## 🎨 Design System
 
-The app uses a **Neo-Brutalism** aesthetic:
+- **Tokens** — `--surface`, `--surface-2`, `--text` / `--text-2` / `--text-3`, `--border`, `--border-soft`, `--accent`, `--accent-soft`, `--accent-on`, `--success`, `--danger`, `--shadow-color` on `[data-theme="light"|"dark"]`
+- **Geometry** — 1.5px borders, 8px (input/button) → 14px (modal/card) radii, 3px hard-shadow on accent buttons with hover lift
+- **Typography** — sans body + mono uppercase meta (`letterSpacing: 0.06em`) for tags, counts, and shortcut hints
+- **Color mixing** — accent-tinted hover states via `color-mix(in srgb, var(--accent) 14%, var(--surface))`
+- **Stagger** — `.fade-up` utility with `--idx` CSS variable + `animationDelay: calc(var(--idx) * 30ms)`
 
-- **Bold 2px borders** with hard box shadows and depth layers
-- **Semantic color tokens:** success, danger, warning, accent — each with auto-contrast `on-*` text pairs
-- **Three-state theming** (light / dark / system) via CSS custom properties on `[data-theme]`
-- **Lucide SVG icons** at 2.5px stroke width for all UI controls
-- **Animated aurora gradient** — 12s cycling background (purple/teal/magenta dark, peach/mint/lavender light)
-- **Stagger animations** on category cards and links
-- **Drag feedback** — Cards lift with scale + shadow on grab, settle smoothly on drop
-- **3D background** — Organic emissive blobs with translucency, depth-spread positioning, and dual-sine motion
-- **Skeleton loading** — Shimmer animation placeholders during content load
+## 🚢 Deployment
+
+Deployed on Vercel with zero configuration. `next.config.ts` injects `NEXT_PUBLIC_BUILD_TIME` from `VERCEL_GIT_COMMIT_AUTHOR_DATE` so the seeded `lastUpdatedAt` on first load reflects the actual deploy commit timestamp.
 
 ## 📝 License
 
