@@ -30,24 +30,24 @@ export function LinkItem({ link, accentColor, onEdit, onDelete, isDragging = fal
       className="fade-up"
       style={{
         ['--idx' as never]: String(index),
-        animationDelay: `calc(var(--idx) * 30ms)`,
+        animationDelay: `calc(var(--idx) * 22ms + 60ms)`,
         display: 'grid',
-        gridTemplateColumns: '20px 1fr auto',
-        alignItems: 'center', gap: 10,
-        padding: '9px 10px',
-        background: hover ? `color-mix(in srgb, ${accentColor} 8%, var(--surface))` : 'transparent',
-        border: `1.5px solid ${hover ? `color-mix(in srgb, ${accentColor} 40%, var(--border-soft))` : 'transparent'}`,
-        borderRadius: 7,
-        transition: 'background 120ms, border-color 120ms',
+        gridTemplateColumns: '32px 1fr auto',
+        alignItems: 'center', gap: 12,
+        padding: '10px 10px',
+        background: hover ? `color-mix(in srgb, ${accentColor} 10%, var(--paper))` : 'transparent',
+        border: `1.5px solid ${hover ? `color-mix(in srgb, ${accentColor} 38%, var(--border-soft))` : 'transparent'}`,
+        borderRadius: 9,
+        transition: 'background 140ms ease, border-color 140ms ease',
         textDecoration: 'none', color: 'inherit',
       }}
       onMouseEnter={() => !isDragging && setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <MonogramFavicon url={link.url} accent={accentColor} />
+      <MonogramFavicon url={link.url} accent={accentColor} size={32} />
       <div style={{ minWidth: 0 }}>
         <div style={{
-          fontSize: 13, fontWeight: 600, color: 'var(--text)',
+          fontSize: 13.5, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.005em',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           <HighlightText text={link.title} query={searchQuery ?? ''} />

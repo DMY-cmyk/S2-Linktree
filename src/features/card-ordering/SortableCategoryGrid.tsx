@@ -16,6 +16,7 @@ import { CategoryCard } from '@/features/link-directory/CategoryCard';
 import { GroupHeader } from '@/features/link-directory/GroupHeader';
 import { useCategoryDnd } from './useCategoryDnd';
 import { groupByTag } from '@/hooks/useTagGroups';
+import type { SortMode } from '@/features/link-directory/FilterStrip';
 import type { Category, Link } from '@/types';
 import type { FilteredResult } from '@/hooks/useFilteredLinks';
 
@@ -30,20 +31,27 @@ interface Props {
   onAddLinkToCategory: (categoryId: string) => void;
   onAddCategory: () => void;
   searchQuery: string;
+  sort?: SortMode;
 }
 
 export function SortableCategoryGrid({
   results, allLinks, allCategories,
   onEditLink, onDeleteLink, onEditCategory, onDeleteCategory,
-  onAddLinkToCategory, onAddCategory, searchQuery,
+  onAddLinkToCategory, onAddCategory, searchQuery, sort = 'order',
 }: Props) {
   const { sensors, dndState, isDragging, handleDragStart, handleDragOver, handleDragEnd } =
     useCategoryDnd(allCategories, allLinks);
 
-  // Build tag groups from the visible (filtered) results
-  const groups = groupByTag(results.map((r) => r.category));
+  // Build tag groups from the visible (filtered) results, then apply the chosen
+  // sort within each group. 'order'/'recent' keep the custom (drag) order;
+  // 'alpha' sorts by name.
+  const groups = groupByTag(results.map((r) => r.category)).map((g) =>
+    sort === 'alpha'
+      ? { ...g, items: [...g.items].sort((a, b) => a.name.localeCompare(b.name)) }
+      : g,
+  );
   const linksByCat = new Map(results.map((r) => [r.category.id, r.links] as const));
-  const sortableIds = results.map((r) => r.category.id);
+  const sortableIds = groups.flatMap((g) => g.items.map((c) => c.id));
 
   return (
     <DndContext
@@ -54,13 +62,13 @@ export function SortableCategoryGrid({
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-        {groups.map((g) => (
+        {groups.map((g, gi) => (
           <section key={g.tag} style={{ marginBottom: 8 }}>
-            <GroupHeader title={g.tag} count={g.items.length} />
+            <GroupHeader title={g.tag} count={g.items.length} index={gi + 1} />
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: 16, paddingTop: 12,
+              gap: 18, paddingTop: 12,
             }}>
               {g.items.map((cat, idx) => (
                 <SortableCategoryCard key={cat.id} category={cat}>

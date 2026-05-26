@@ -1,14 +1,23 @@
 export function Footer() {
   return (
-    <footer className="mono" style={{
-      maxWidth: 1100, margin: '60px auto 32px', padding: 24,
-      borderTop: '1.5px solid var(--border-soft)',
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      fontSize: 11, color: 'var(--text-3)',
-      flexWrap: 'wrap', gap: 12,
-    }}>
-      <div>S2-LINKTREE · POLISHED · v5.0</div>
-      <div style={{ display: 'flex', gap: 16 }}>
+    <footer
+      style={{
+        maxWidth: 1180, margin: '80px auto 28px', padding: '28px 24px',
+        borderTop: '1.5px solid var(--border-soft)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 16,
+      }}
+    >
+      <div
+        className="mono"
+        style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-3)' }}
+      >
+        S2-LINKTREE · POLISHED · v5.0
+      </div>
+      <div
+        className="mono"
+        style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 11, color: 'var(--text-3)' }}
+      >
         <span>↑ ↓ ← → navigate</span>
         <span>⌘K search</span>
         <span>E edit · D delete</span>

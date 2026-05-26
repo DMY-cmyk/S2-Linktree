@@ -9,9 +9,9 @@ const MAP: Record<string, string> = {
   'koperasi.bappenas.go.id': 'B',
 };
 
-interface Props { url: string; accent?: string; }
+interface Props { url: string; accent?: string; size?: number }
 
-export function MonogramFavicon({ url, accent }: Props) {
+export function MonogramFavicon({ url, accent, size = 20 }: Props) {
   let host = '';
   try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { /* ignore */ }
   if (!host) return <span aria-hidden>·</span>;
@@ -22,10 +22,12 @@ export function MonogramFavicon({ url, accent }: Props) {
       role="img"
       aria-label={`Favicon for ${host}`}
       style={{
-        width: 20, height: 20, display: 'grid', placeItems: 'center',
-        borderRadius: 4, background: 'var(--surface-2)',
-        border: '1px solid var(--border-soft)',
-        color: accent ?? 'var(--text)', fontSize: 10, fontWeight: 700,
+        width: size, height: size, display: 'grid', placeItems: 'center',
+        borderRadius: size >= 28 ? 8 : 4,
+        background: accent ? `color-mix(in srgb, ${accent} 10%, var(--paper))` : 'var(--surface-2)',
+        border: `1.5px solid ${accent ? `color-mix(in srgb, ${accent} 30%, var(--border-soft))` : 'var(--border-soft)'}`,
+        color: accent ?? 'var(--text)',
+        fontSize: size >= 28 ? 10 : 9, fontWeight: 600, letterSpacing: '0.04em',
         flexShrink: 0,
       }}
     >{ch}</span>

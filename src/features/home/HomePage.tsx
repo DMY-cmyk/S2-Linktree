@@ -12,9 +12,15 @@ import { ToastContainer } from '@/components/ui/Toast';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import { CssOrbs } from '@/features/background-effects/CssOrbs';
+import { FilterStrip, type SortMode } from '@/features/link-directory/FilterStrip';
+import { TweaksEffects } from '@/features/tweaks/TweaksEffects';
+import { TweaksPanel } from '@/features/tweaks/TweaksPanel';
 import { useFilteredLinks } from '@/hooks/useFilteredLinks';
+import { useTagFilter } from '@/hooks/useTagFilter';
+import { useHydrated } from '@/hooks/useHydrated';
 import { useLinkStore } from '@/store/useLinkStore';
 import { useToastStore } from '@/store/useToastStore';
+import { useTweaksStore } from '@/store/useTweaksStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import type { Link, Category } from '@/types';
 
@@ -25,10 +31,21 @@ export function HomePage() {
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [preselectedCategoryId, setPreselectedCategoryId] = useState<string | undefined>();
+  const [sort, setSort] = useState<SortMode>('order');
   const searchBarRef = useRef<SearchBarRef>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
+  const hydrated = useHydrated();
+  const filterVisible = useTweaksStore((s) => s.filterVisible);
+  const { activeTags } = useTagFilter();
+
   const filteredResults = useFilteredLinks(searchQuery);
+  // Tag filtering happens here so the inline FilterStrip actually narrows the
+  // grid (search filtering already lives in useFilteredLinks).
+  const visibleResults =
+    activeTags.size === 0
+      ? filteredResults
+      : filteredResults.filter((r) => activeTags.has(r.category.tag));
   const deleteLink = useLinkStore((s) => s.deleteLink);
   const deleteCategory = useLinkStore((s) => s.deleteCategory);
   const getSnapshot = useLinkStore((s) => s.getSnapshot);
@@ -107,6 +124,7 @@ export function HomePage() {
   return (
     <>
       <CssOrbs theme={theme} />
+      <TweaksEffects />
       <div className="content-wrapper" style={{ minHeight: '100vh' }}>
         <Header
           query={searchQuery}
@@ -114,13 +132,15 @@ export function HomePage() {
           onAddLink={() => setIsAddLinkOpen(true)}
           searchInputRef={searchBarRef}
         />
-        <main style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 32px' }}>
+        <main style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px 36px' }}>
           <HeroSection />
+          <FilterStrip visible={!hydrated || filterVisible} sort={sort} onSort={setSort} />
           <CategoryGrid
-            results={filteredResults}
+            results={visibleResults}
             allLinks={links}
             allCategories={categories}
             searchQuery={searchQuery}
+            sort={sort}
             onClearSearch={() => setSearchQuery('')}
             onEditLink={setEditingLink}
             onDeleteLink={handleDeleteLink}
@@ -163,6 +183,7 @@ export function HomePage() {
         )}
 
         <ToastContainer />
+        <TweaksPanel />
       </div>
     </>
   );

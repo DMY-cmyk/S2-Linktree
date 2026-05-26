@@ -25,13 +25,15 @@ describe('Header', () => {
     expect(screen.getByRole('button', { name: /^add link$/i })).toBeInTheDocument();
   });
 
-  it('clicking filter opens popover (5 pills)', () => {
+  it('clicking filter toggles the filter-bar pressed state', () => {
     const ref = createRef<HTMLInputElement>();
     render(<Header
       query="" onQueryChange={() => {}}
       onAddLink={() => {}} searchInputRef={ref as unknown as RefObject<SearchBarRef | null>}
     />);
-    fireEvent.click(screen.getByRole('button', { name: /filter/i }));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(5);
+    const filter = screen.getByRole('button', { name: /filter/i });
+    const before = filter.getAttribute('aria-pressed');
+    fireEvent.click(filter);
+    expect(filter.getAttribute('aria-pressed')).not.toBe(before);
   });
 });

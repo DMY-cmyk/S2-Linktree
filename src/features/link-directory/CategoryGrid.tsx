@@ -3,6 +3,7 @@
 import { SortableCategoryGrid } from '@/features/card-ordering/SortableCategoryGrid';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { RichEmptyState } from '@/components/ui/RichEmptyState';
+import type { SortMode } from '@/features/link-directory/FilterStrip';
 import type { Category, Link } from '@/types';
 import type { FilteredResult } from '@/hooks/useFilteredLinks';
 
@@ -19,6 +20,7 @@ interface CategoryGridProps {
   onAddLinkToCategory: (categoryId: string) => void;
   onAddCategory: () => void;
   loading?: boolean;
+  sort?: SortMode;
 }
 
 export function CategoryGrid({
@@ -34,6 +36,7 @@ export function CategoryGrid({
   onAddLinkToCategory,
   onAddCategory,
   loading,
+  sort,
 }: CategoryGridProps) {
   if (loading) {
     return (
@@ -87,6 +90,7 @@ export function CategoryGrid({
       onAddLinkToCategory={onAddLinkToCategory}
       onAddCategory={onAddCategory}
       searchQuery={searchQuery}
+      sort={sort}
     />
   );
 }

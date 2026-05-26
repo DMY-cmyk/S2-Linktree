@@ -30,8 +30,8 @@ export function CategoryCard({
 }: Props) {
   const [hover, setHover] = useState(false);
   const accent = category.color;
-  const headerBg = `color-mix(in srgb, ${accent} 14%, var(--surface))`;
   const ariaLabel = `${category.name}, ${links.length} link${links.length === 1 ? '' : 's'}, press E to edit or D to delete`;
+  const lifted = hover && !isDragging;
 
   return (
     <article
@@ -41,14 +41,19 @@ export function CategoryCard({
       className="fade-up"
       style={{
         ['--idx' as never]: String(index),
-        animationDelay: `calc(var(--idx) * 30ms)`,
+        animationDelay: `calc(var(--idx) * 28ms)`,
         position: 'relative',
-        background: 'var(--surface)',
-        border: '1.5px solid var(--border)',
-        borderRadius: 10,
-        boxShadow: hover && !isDragging ? '4px 4px 0 var(--shadow-color)' : '3px 3px 0 var(--shadow-color)',
-        transform: hover && !isDragging ? 'translate(-1px,-1px)' : 'translate(0,0)',
-        transition: 'transform 120ms ease, box-shadow 120ms ease',
+        background: `
+          radial-gradient(130% 80% at 100% 0%, color-mix(in srgb, ${accent} 18%, var(--paper)) 0%, var(--paper) 50%),
+          var(--paper)
+        `,
+        border: '1.5px solid var(--border-soft)',
+        borderRadius: 16,
+        boxShadow: lifted
+          ? `0 14px 28px -16px color-mix(in srgb, ${accent} 50%, var(--shadow-color)), 0 2px 0 color-mix(in srgb, var(--shadow-color) 6%, transparent)`
+          : `0 6px 18px -14px color-mix(in srgb, var(--shadow-color) 35%, transparent), 0 1px 0 color-mix(in srgb, var(--shadow-color) 5%, transparent)`,
+        transform: lifted ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'transform 180ms cubic-bezier(0.2,0.7,0.2,1), box-shadow 180ms ease',
         overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
       }}
@@ -56,71 +61,74 @@ export function CategoryCard({
       onMouseLeave={() => setHover(false)}
     >
       <header style={{
-        padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 10,
-        borderBottom: '1.5px solid var(--border-soft)',
-        background: headerBg,
+        padding: 'var(--card-pad) var(--card-pad) calc(var(--card-pad) - 4px)',
+        display: 'flex', alignItems: 'flex-start', gap: 12,
       }}>
         {dragHandleProps && (
           <DragHandle listeners={dragHandleProps.listeners} attributes={dragHandleProps.attributes} />
         )}
+
+        {/* emoji chip tinted by the category color */}
+        <div style={{
+          width: 38, height: 38, flexShrink: 0, display: 'grid', placeItems: 'center',
+          background: 'var(--paper)',
+          border: `1.5px solid color-mix(in srgb, ${accent} 35%, var(--border-soft))`,
+          borderRadius: 10, fontSize: 18,
+          boxShadow: `inset 0 -2px 0 color-mix(in srgb, ${accent} 20%, transparent)`,
+        }}>{category.emoji}</div>
+
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              width: 8, height: 8, borderRadius: 2, background: accent,
-              border: `1px solid color-mix(in srgb, ${accent} 60%, var(--border))`,
-              flexShrink: 0,
-            }} />
-            <h3 style={{
-              margin: 0, fontSize: 15, fontWeight: 700, letterSpacing: '-0.015em',
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              color: 'var(--text)',
-            }}>{category.name}</h3>
-          </div>
+          <h3 style={{
+            margin: 0, fontSize: 16, fontWeight: 600, letterSpacing: '-0.012em',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)',
+          }}>{category.name}</h3>
           <div className="mono" style={{
-            marginTop: 3, fontSize: 10.5, color: 'var(--text-3)',
-            textTransform: 'uppercase', letterSpacing: '0.08em',
+            marginTop: 4, fontSize: 10.5, letterSpacing: '0.16em', textTransform: 'uppercase',
+            color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            {category.tag} · <span style={{ color: 'var(--text-2)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent }} />
+            <span>{category.tag}</span>
+            <span>·</span>
+            <span style={{ color: 'var(--text-2)' }}>
               {links.length} link{links.length === 1 ? '' : 's'}
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 2 }}>
-          <button type="button" onClick={() => onEditCategory(category)}
-            aria-label={`Edit ${category.name}`}
-            style={{ width: 26, height: 26, display: 'grid', placeItems: 'center',
-              background: 'transparent', border: 'none', borderRadius: 6,
-              color: 'var(--text-3)', cursor: 'pointer' }}>
+
+        <div style={{
+          display: 'flex', gap: 2,
+          opacity: hover ? 1 : 0.45, transition: 'opacity 140ms ease',
+        }}>
+          <CardIconButton label={`Edit ${category.name}`} onClick={() => onEditCategory(category)}>
             <Pencil size={13} strokeWidth={1.75} />
-          </button>
-          <button type="button" onClick={() => onDeleteCategory(category)}
-            aria-label={`Delete ${category.name}`}
-            style={{ width: 26, height: 26, display: 'grid', placeItems: 'center',
-              background: 'transparent', border: 'none', borderRadius: 6,
-              color: 'var(--text-3)', cursor: 'pointer' }}>
+          </CardIconButton>
+          <CardIconButton label={`Delete ${category.name}`} onClick={() => onDeleteCategory(category)}>
             <Trash2 size={13} strokeWidth={1.75} />
-          </button>
+          </CardIconButton>
         </div>
       </header>
 
-      <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+      <div style={{ margin: '0 var(--card-pad)', height: 1, background: 'var(--border-soft)', opacity: 0.6 }} />
+
+      <div style={{
+        padding: 'calc(var(--card-pad) - 4px) calc(var(--card-pad) - 6px)',
+        display: 'flex', flexDirection: 'column', gap: 2, flex: 1,
+      }}>
         {links.length === 0 ? (
           <div style={{
-            padding: '20px 12px', textAlign: 'center',
-            border: '1.5px dashed var(--border-soft)', borderRadius: 8,
-            background: 'var(--surface-2)',
+            margin: '4px 4px 0', padding: '24px 16px', textAlign: 'center',
+            border: '1.5px dashed var(--border-soft)', borderRadius: 10,
+            background: 'color-mix(in srgb, var(--surface-2) 60%, transparent)',
           }}>
             <div style={{
-              width: 28, height: 28, margin: '0 auto 8px',
-              display: 'grid', placeItems: 'center',
-              background: 'var(--surface)', border: '1.5px solid var(--border-soft)',
-              borderRadius: 6, color: 'var(--text-3)',
+              width: 30, height: 30, margin: '0 auto 10px', display: 'grid', placeItems: 'center',
+              background: 'var(--paper)', border: '1.5px solid var(--border-soft)', borderRadius: 8,
+              color: 'var(--text-3)',
             }}><BookOpen size={14} strokeWidth={1.75} /></div>
             <div className="mono" style={{
-              fontSize: 10.5, fontWeight: 500, color: 'var(--text-3)',
-              textTransform: 'uppercase', letterSpacing: '0.1em',
+              fontSize: 10.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-2)',
             }}>No links yet</div>
-            <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}>
+            <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 5 }}>
               Drop a Classroom link or Drive folder.
             </div>
           </div>
@@ -133,23 +141,41 @@ export function CategoryCard({
               isDragging={isDragging} searchQuery={searchQuery} index={i} />
           ))
         )}
+
         <button
           type="button"
           onClick={() => onAddLink(category.id)}
           aria-label="Add link"
           style={{
-            marginTop: 4, height: 36,
+            marginTop: 6, height: 34,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            background: 'transparent',
-            border: '1.5px dashed var(--border-soft)',
-            borderRadius: 8,
-            color: 'var(--text-3)', fontSize: 12, fontWeight: 500,
-            cursor: 'pointer',
+            background: 'transparent', color: 'var(--text-3)',
+            border: '1.5px dashed var(--border-soft)', borderRadius: 8,
+            fontSize: 12, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
           }}
         >
           <Plus size={12} strokeWidth={1.75} /> Add link
         </button>
       </div>
     </article>
+  );
+}
+
+function CardIconButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        width: 28, height: 28, display: 'grid', placeItems: 'center',
+        background: 'transparent', color: 'var(--text-2)',
+        border: 'none', borderRadius: 7, cursor: 'pointer',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-2)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+    >
+      {children}
+    </button>
   );
 }
